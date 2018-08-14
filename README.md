@@ -2,44 +2,43 @@
 Rev: 0, DRAFT
 
 ## Abstract
-We identify the two main problems of cryptocurrencies as being inherently hard to use and integrate, in  
-terms of operating in a way that’s complex to users unfamiliar with cryptocurrency as compared to  
-mainstream payment systems and processes in general, and secondly being hard to access and prone  
-to a movement of users from fullnodes to semi­trusted, centralized intermediary services due to the lack  
-of incentives to run fullnodes as their operating costs increases and due to a network design which  
-assumes all users are prepared to operate as a p2p node using non­standard communication protocols  
-instead of a Client such as a browser or mobile over a common protocol such as HTTPS. To solve the  
-problem of usability for end­users and application integrations, we introduce the concept of a blockchain  
-Account providing a persistent user­subscription that can add, update and retrieve objects that make it  
-easier for Account users to manage and spend their funds and connect with other users, using objects  
-such as Contacts, Apps and Orders. Users burn Dash when creating the account which forms a  
-fee­balance for the Account that users can spend to miners who claim fees for updates to Accounts in  
-blocks via a coinbase output. For flexibility, we define the objects Accounts can create and update using a  
-JSON based schema that provides consensus rules on object validation using programmatic  
-implementation of the object protocol from core nodes to web browser clients. For scalability, nodes store  
-just the hash of the transitions in Account state in blocks and commit the transition data, which is  
-essentially notarized in the block, to a parallel storage mechanism that keeps only recent states of an  
-Account’s data, with users accessing the current state normally and therefore scaling in relation to the  
-total number of end­users rather than the total state transitions on their data, which is also sharded on a  
-per­account basis. In rare cases that could result in object data loss, such as a mass correlated  
-destruction of peers and their data, or if user’s want to restore a past Account state, only a single copy of  
-an account state needs to be recovered, for example from a user’s local backup, from a block explorer or  
-from an archive service for a fee, which can then be authenticated by validating its hash against the  
-blockchain object­state consensus and repopulated into the network. This enables an immutable and  
-fully durable consensus on the authenticity of objects and their state transition histories with minimal  
-impact on blockchain growth, and a fully immutable consensus on object data with a durability level  
-maximized in relation to the size of the user­base and the total capacity of the peer­to­peer network, and  
-with the collateralized nodes facilitating and storing state transitions rewarded only when they achieve a  
-minimum quota of transitions in blocks derived from the total nodes and total Account activity within a  
-recent timeframe. To solve the problem of decentralized access, we implement a Client protocol that  
-enables HTTPS access by Account users via collateralized nodes working in quorums determined using a  
-recent block hash, who can update their account within authenticated pseudonymous sessions and verify  
-quorum responses using other nodes in the network anonymously as well as gaining full SPV access to  
+We identify the two main problems of cryptocurrencies as being inherently hard to use and integrate, in
+terms of operating in a way that’s complex to users unfamiliar with cryptocurrency as compared to
+mainstream payment systems and processes in general, and secondly being hard to access and prone
+to a movement of users from fullnodes to semi-trusted, centralized intermediary services due to the lack
+of incentives to run fullnodes as their operating costs increases and due to a network design which
+assumes all users are prepared to operate as a p2p node using non-standard communication protocols
+instead of a Client such as a browser or mobile over a common protocol such as HTTPS. To solve the
+problem of usability for end-users and application integrations, we introduce the concept of a blockchain
+Account providing a persistent user-subscription that can add, update and retrieve objects that make it
+easier for Account users to manage and spend their funds and connect with other users, using objects
+such as Contacts, Apps and Orders. Users burn Dash when creating the account which forms a
+fee-balance for the Account that users can spend to miners who claim fees for updates to Accounts in
+blocks via a coinbase output. For flexibility, we define the objects Accounts can create and update using a
+JSON based schema that provides consensus rules on object validation using programmatic
+implementation of the object protocol from core nodes to web browser clients. For scalability, nodes store
+just the hash of the transitions in Account state in blocks and commit the transition data, which is
+essentially notarized in the block, to a parallel storage mechanism that keeps only recent states of an
+Account’s data, with users accessing the current state normally and therefore scaling in relation to the
+total number of end-users rather than the total state transitions on their data, which is also sharded on a
+per-account basis. In rare cases that could result in object data loss, such as a mass correlated
+destruction of peers and their data, or if user’s want to restore a past Account state, only a single copy of
+an account state needs to be recovered, for example from a user’s local backup, from a block explorer or
+from an archive service for a fee, which can then be authenticated by validating its hash against the
+blockchain object-state consensus and repopulated into the network. This enables an immutable and
+fully durable consensus on the authenticity of objects and their state transition histories with minimal
+impact on blockchain growth, and a fully immutable consensus on object data with a durability level
+maximized in relation to the size of the user-base and the total capacity of the peer-to-peer network, and
+with the collateralized nodes facilitating and storing state transitions rewarded only when they achieve a
+minimum quota of transitions in blocks derived from the total nodes and total Account activity within a
+recent timeframe. To solve the problem of decentralized access, we implement a Client protocol that
+enables HTTPS access by Account users via collateralized nodes working in quorums determined using a
+recent block hash, who can update their account within authenticated pseudonymous sessions and verify
+quorum responses using other nodes in the network anonymously as well as gaining full SPV access to
 the payments layer through the HTTPS API.
 
 
 ## Contents
-
 1. Introduction
 2. Design Rationale
   1. Evolution Goals
@@ -78,105 +77,108 @@ the payments layer through the HTTPS API.
 9. Triggers
   1. Ratings
   2. Masternode Shares
-  3. Proof­of­Service Verification
+  3. Proof-of-Service Verification
   4. Masternode Rewards
   5. Governance
   6. System Admins
 
 ## 1 Introduction
-Dash Evolution provides an Object­based Tier­3 access layer that encapsulates existing core  
-payment objects such as transactions and blocks, and new types of object such as Users, Apps  
-and Orders that make Dash easier to use and integrate for end­users and 3rd party applications.  
-Evolution enables end­users and applications to access the system using a persistent Account  
-to read, write and query Objects through a Decentralized API (DAPI) distributed across the  
-Masternode network using HTTPS from any device. DAPI is designed around the kind of data  
-models and design patterns commonly found in mainstream applications, without needing  
-in­depth cryptocurrency knowledge to integrate or use Dash easily.  
-Nodes and clients can access object­based meta­payment functions that abstract the core  
-function of sending transactions between 2 cryptographic addresses within the kind of  
-processes users and businesses are more familiar with. In this sense, the Object protocol  
-overlays the existing core transactional protocol in Dash; Objects cannot enact movements of  
-funds in Dash, but they can represent the metadata needed in common use cases between  
-parties to abstract the transaction process and persist end­user and application data in a useful  
-and friendly way to most mainstream users and developers, without centralized intermediary  
+Dash Evolution provides an Object-based Tier-3 access layer that encapsulates existing core
+payment objects such as transactions and blocks, and new types of object such as Users, Apps
+and Orders that make Dash easier to use and integrate for end-users and 3rd party applications.
+Evolution enables end-users and applications to access the system using a persistent Account
+to read, write and query Objects through a Decentralized API (DAPI) distributed across the
+Masternode network using HTTPS from any device. DAPI is designed around the kind of data
+models and design patterns commonly found in mainstream applications, without needing
+in-depth cryptocurrency knowledge to integrate or use Dash easily.
+Nodes and clients can access object-based meta-payment functions that abstract the core
+function of sending transactions between 2 cryptographic addresses within the kind of
+processes users and businesses are more familiar with. In this sense, the Object protocol
+overlays the existing core transactional protocol in Dash; Objects cannot enact movements of
+funds in Dash, but they can represent the metadata needed in common use cases between
+parties to abstract the transaction process and persist end-user and application data in a useful
+and friendly way to most mainstream users and developers, without centralized intermediary
 services or middleware.
 
 ## 2 Design Rationale
-
 ### 2.1 Evolution Goals
-The overall goal of Evolution as a whole is to provide a secure, decentralized solution for  
-end­users who find cryptocurrencies too inaccessible or hard to use and businesses who find  
+The overall goal of Evolution as a whole is to provide a secure, decentralized solution for
+end-users who find cryptocurrencies too inaccessible or hard to use and businesses who find
 cryptocurrencies to be too complex and costly to integrate to their websites and applications.
-Evolution is a system that provides ease­of­use in the form of, for typical consumers, the ability  
-to simply signup as a Dash user from a website or mobile app and store funds or pay friends or  
-merchants by name without needing permission or access from an intermediary service, that is  
-to say, the service they connect to is the peer­to­peer network itself and not a proxy, which when  
-combined with a SPV service available through a network­wide Decentralized­API and the  
-ability for end­user clients to act as selfish nodes in the p2p network, provides the most secure  
-and decentralized access for end­users who are not prepared to run their own fullnode. For  
-merchants, this means the ability to integrate Dash payments directly into their web page or app  
-in the a way they are familiar with, e.g. copying and pasting some JavaScript into the web page /  
-web server to enable payments as per PayPal or Stripe, instead of having to either implement a  
-non­standard payments infrastructure including a full­node implementation, or use a  
-permissioned remote payment processor, and also with direct SPV­based peer­network access..
+Evolution is a system that provides ease-of-use in the form of, for typical consumers, the ability
+to simply signup as a Dash user from a website or mobile app and store funds or pay friends or
+merchants by name without needing permission or access from an intermediary service, that is
+to say, the service they connect to is the peer-to-peer network itself and not a proxy, which when
+combined with a SPV service available through a network-wide Decentralized-API and the
+ability for end-user clients to act as selfish nodes in the p2p network, provides the most secure
+and decentralized access for end-users who are not prepared to run their own fullnode. For
+merchants, this means the ability to integrate Dash payments directly into their web page or app
+in the a way they are familiar with, e.g. copying and pasting some JavaScript into the web page /
+web server to enable payments as per PayPal or Stripe, instead of having to either implement a
+non-standard payments infrastructure including a full-node implementation, or use a
+permissioned remote payment processor, and also with direct SPV-based peer-network access.
 
 ### 2.2 Accounts & Objects
-User Accounts and the Objects they can add and update are the basic data structure used in  
-Evolution’s new Account functions in the same way that Transactions are the basic data  
-structure used Dash’s current payment­only functions.  
-Instead of just the ability to read and write transactions to the Dash Network, Evolution provides  
-a range of inter­related Object types that model common and useful entities during B2C, B2B  
-and C2C payment processes and enable end­users and applications to interface with Dash in a  
-much simpler way that abstracts the cryptographic elements of Dash for end­users and  
-applications into an easier to use platform, such as users not having to enter or validate Dash  
+User Accounts and the Objects they can add and update are the basic data structure used in
+Evolution’s new Account functions in the same way that Transactions are the basic data
+structure used Dash’s current payment-only functions.
+
+Instead of just the ability to read and write transactions to the Dash Network, Evolution provides
+a range of inter-related Object types that model common and useful entities during B2C, B2B
+and C2C payment processes and enable end-users and applications to interface with Dash in a
+much simpler way that abstracts the cryptographic elements of Dash for end-users and
+applications into an easier to use platform, such as users not having to enter or validate Dash
 payment addresses, and provide this as a service through a Decentralized API (DAPI).
-For example, currently Merchants integrating Dash have to operate at a transactional level, that  
-is to say, each customer purchase requires the merchant to generate and display a long  
-cryptographically generated address, which the user has to physically copy to a wallet and  
-construct a payment transaction manually. Once the payment is made, the merchant then has to  
-check for the transaction on the blockchain and link that to their own internal accounting system  
+
+For example, currently Merchants integrating Dash have to operate at a transactional level, that
+is to say, each customer purchase requires the merchant to generate and display a long
+cryptographically generated address, which the user has to physically copy to a wallet and
+construct a payment transaction manually. Once the payment is made, the merchant then has to
+check for the transaction on the blockchain and link that to their own internal accounting system
 for recording and auditing.
 
-If we abstract this process using objects, for example a Merchant, User and Order object, the  
-process can be that the User passes their unique Object identifier (such as username) to the  
-Merchant, who in turn creates an Order object with the User object marked as the recipient and  
-a physical address exchange handled automatically within those objects based on a  
-pregenerated HD seed. The User can then make the payment and the system can alert and  
-represent the payment to both the user and the merchant without anyone having to enter an  
-address, and using objects that are common­place and understood well by both end­users,  
-merchants and their developers and will likely be pre­existing and interoperable with in the  
+If we abstract this process using objects, for example a Merchant, User and Order object, the
+process can be that the User passes their unique Object identifier (such as username) to the
+Merchant, who in turn creates an Order object with the User object marked as the recipient and
+a physical address exchange handled automatically within those objects based on a
+pregenerated HD seed. The User can then make the payment and the system can alert and
+represent the payment to both the user and the merchant without anyone having to enter an
+address, and using objects that are common-place and understood well by both end-users,
+merchants and their developers and will likely be pre-existing and interoperable with in the
 merchants backend systems.
-By delivering a cryptocurrency service at an abstract, Object based level instead of at a purely  
+
+By delivering a cryptocurrency service at an abstract, Object based level instead of at a purely
 Transactional level, the main benefits to users are:
 
- - Businesses can integrate Dash payments directly (through a decentralized HTTPS API)  
-without having to implement middleware or 3rd party solutions to interface a  
-non­standard (p2p cryptocurrency) payments system to their existing system’s  
-functionality and data­model.
- - Users can signup and login to Dash directly (from a webpage or mobile app) to access a  
-persistent account using a username and password and perform all typical payment  
-functions provided by standard (centralized) services at a level of abstraction that hides  
-the non­standard cryptocurrency payments experience and provides a more familiar and  
+ - Businesses can integrate Dash payments directly (through a decentralized HTTPS API)
+without having to implement middleware or 3rd party solutions to interface a
+non-standard (p2p cryptocurrency) payments system to their existing system’s
+functionality and data-model.
+ - Users can signup and login to Dash directly (from a webpage or mobile app) to access a
+persistent account using a username and password and perform all typical payment
+functions provided by standard (centralized) services at a level of abstraction that hides
+the non-standard cryptocurrency payments experience and provides a more familiar and
 easy to use experience
- - Operators such as Masternode operators, contractors, admins and moderators can  
-interact with the Network in an easy to use way (via websites and apps connected to the  
+ - Operators such as Masternode operators, contractors, admins and moderators can
+interact with the Network in an easy to use way (via websites and apps connected to the
 DAPI) and without needing to use a fullnode CLI.
 
-The architecture also enables Dash to be used as a decentralized marketplace, for example, an  
-online merchant operating an e­commerce pipeline can register an ‘App’ object in Dash and list  
-their product SKU’s within it and retrieve these on either their server or client side, so they can  
-either link their existing pipeline implementation to Dash, or if fiat transactions are not required,  
-implement their whole pipeline off of Dash’s object implementation. They can then link Dash  
-users directly to their local users and bill them and confirm payment using object based HTTPS  
-API calls to the Dash Network without having to integrate any non­standard functions such as  
-addresses and transactions on their backend, and they can do this with a lite (SPV)  
-implementation through the API or with their own fullnode if they want full trustless operation.  
-For end­users, after signing up they can access their full account and history from any location,  
-connect with and pay friends, and discover and “install” (authorize) Apps that they can then  
-interact with, either within Dash (if the App is listing product objects) or externally through the  
-App’s own interface. They also have access to a wide range of features, such as account types  
-like savings, cash (anonymous), joint (multi­sig) and vaults (covenants), or payment types such  
-as one­time payments, moderated refunds or recurring auto­payments (subscriptions), without  
+The architecture also enables Dash to be used as a decentralized marketplace, for example, an
+online merchant operating an e-commerce pipeline can register an ‘App’ object in Dash and list
+their product SKU’s within it and retrieve these on either their server or client side, so they can
+either link their existing pipeline implementation to Dash, or if fiat transactions are not required,
+implement their whole pipeline off of Dash’s object implementation. They can then link Dash
+users directly to their local users and bill them and confirm payment using object based HTTPS
+API calls to the Dash Network without having to integrate any non-standard functions such as 
+addresses and transactions on their backend, and they can do this with a lite (SPV) 
+implementation through the API or with their own fullnode if they want full trustless operation.
+
+For end-users, after signing up they can access their full account and history from any location, 
+connect with and pay friends, and discover and “install” (authorize) Apps that they can then 
+interact with, either within Dash (if the App is listing product objects) or externally through the 
+App’s own interface. They also have access to a wide range of features, such as account types 
+like savings, cash (anonymous), joint (multi-sig) and vaults (covenants), or payment types such 
+as one-time payments, moderated refunds or recurring auto-payments (subscriptions), without 
 having to manage addresses or manually lookup a transaction in a block explorer.
 
 ### 2.3 Consensus
@@ -185,18 +187,18 @@ durability, that is with a zero probability of data loss with at least one hones
 In the case of Accounts and their Object data, and maintaining a consensus on the correct  
 sequence of transitions of Account states, the blockchain would be the most durable method to  
 store all Account data in a chain of state transitions, but it is also the most expensive. In fact, in  
-the type of decentralized e­commerce applications that Evolution is designed to support, the  
-meta­data the objects support around each payment would increase blockchain growth several  
+the type of decentralized e-commerce applications that Evolution is designed to support, the  
+meta-data the objects support around each payment would increase blockchain growth several  
 times, linearly to the increase in payment volume. The economics of this kind of overhead, even  
 with an incentivized node network, are infeasible because essentially the cost of storing meta  
 data around a payment cannot be many times the cost of the actual payment on the blockchain  
 because it does not add the same increase in value to end users of using DAPI over a basic  
-core­client payment.
+core-client payment.
 The main problems with storing full data for Accounts and their Objects on the Blockchain are:
  - Transactions involve a movement of funds from which the fees to include transactions in  
 a block can be deducted from easily. Storing additional Objects that don’t transfer funds  
 has the problem of providing no incentives for miners to include them in blocks.
- - As entities designed to abstract transactions within the kind of processes end­users and  
+ - As entities designed to abstract transactions within the kind of processes end-users and  
 applications are familiar with, Objects inherently will have a larger data size than the  
 transactions that they encapsulate. This will result in a larger chain, with chain size  
 already being one of the key limitations of cryptocurrencies in general in terms gaining  
@@ -224,31 +226,31 @@ Objects nodes are required to provide.
 4. Force collateralized nodes to proof a minimum level of service deterministically to  
 receive rewards for providing Account access and storage
 This gives us the properties:
- - An Account and every state­transition in its history can be validated by comparing its  
+ - An Account and every state-transition in its history can be validated by comparing its  
 hash  to the hash in the Block’s Merkle Tree. This means that in the event of data loss  
 from e.g. mass correlated node failure, only a single copy of the Object’s Data needs to  
 be reintroduced for the network to the validate, propagate and persist that data, for  
-example from an end­user backup or an archive service.
+example from an end-user backup or an archive service.
  - Fullnodes can validate an Object during relay without needing an existing copy of the  
 data
  - Miners are incentivized to include Object state transition hashes in blocks
  - Nodes are incentivized to store and provide Object data to users
- - Overall storage in the network for Object data scales at a reduced rate of O(n/s) where s  
+ - Overall storage in the network for Object data scales at a reduced rate of O(n/s) where `s`
 is the shard factor required by the network.
  - Blockchain size scales at an increased linear rate (estimated around O(<2n) when  
-allowing 1­2 Account state transitions per transaction) regardless of Object size
- - Increased utility of an easy­to­integrate & easy­to­use service feeds back into the value  
+allowing 1-2 Account state transitions per transaction) regardless of Object size
+ - Increased utility of an easy-to-integrate & easy-to-use service feeds back into the value  
 of rewards paid to Masternodes to cover increased costs of hosting a larger Blockchain  
-and the total Object Data­set.
+and the total Object Data-set.
 
 ### 2.4 Decentralized Access
-Evolution has been designed from the front­end­up,with the focus on providing an end­user  
+Evolution has been designed from the front-end-up,with the focus on providing an end-user  
 experience that’s easy to use, secure and decentralized, rather than starting from a basic need  
 to send funds between 2 addresses, to remove some of the main frictions to mass adoption and  
 to open the door to new, permissionless ways for developers to build digital cash based apps  
 and services using the most commonly used programming languages, data structures and  
 protocols.
-One of the main problems with real­world usage of Cryptocurrencies is that the vast majority of  
+One of the main problems with real-world usage of Cryptocurrencies is that the vast majority of  
 users do not actually deal directly with the Cryptocurrencies p2p network, they rely on 3rd  
 parties to provide intermediary services, to which the user is usually trusting for payment  
 verification and always dependant on the permission and availability of those services as well as  
@@ -260,23 +262,23 @@ already using centralized services from the browser and mobile devices. A compar
 be seeders and leechers in BitTorrent; only a small fraction of users seed, and of those, most  
 have financial incentives to do so. Of seeders, most of those are on desktop apps, with  
 browsers and mobile devices needing to go through proxies to access the torrent network.  
-What this results in is the cryptocurrency p2p network where end­users rarely access directly  
+What this results in is the cryptocurrency p2p network where end-users rarely access directly  
 and instead access via centralized businesses and mostly without SPV (Simplified Payment  
 Verification), especially on the web. This reduces the benefits such as permissionless access,  
-service availability and trustless operation to end­users when choosing between  
-cryptocurrencies and existing easy­to­use centralized payment services and reduces the  
-potential market size to which cryptocurrencies have fully­featured access to.
-What is needed is a way for end­users to access the P2P network directly in a read­only (i.e.  
-selfish, leaching, or non­contributing manner), using the kind of tools and protocols that they are  
+service availability and trustless operation to end-users when choosing between  
+cryptocurrencies and existing easy-to-use centralized payment services and reduces the  
+potential market size to which cryptocurrencies have fully-featured access to.
+What is needed is a way for end-users to access the P2P network directly in a read-only (i.e.  
+selfish, leaching, or non-contributing manner), using the kind of tools and protocols that they are  
 already using, and ensuring that that access is SPV based and with the ability to interoperate  
 with any contributing node in the network, in other words a Client protocol.
 
 
 Cataloguing the major problems:
  - The communication protocol used in the Dash P2P network is a bespoke messaging  
-protocol on non­standard ports that isn’t understood or used by most developers, hard to  
-implement, inaccessible to the clients with the largest end­user­payments market share  
-(browsers) and even though it is available on mobile, as a non­standard protocol it is  
+protocol on non-standard ports that isn’t understood or used by most developers, hard to  
+implement, inaccessible to the clients with the largest end-user-payments market share  
+(browsers) and even though it is available on mobile, as a non-standard protocol it is  
 often blocked in firewall policies and easier to censor by authorities.
  - Even with a p2p connection, the protocol is extremely complex to implement correctly,  
 and developers need to understand cryptocurrency to a high degree to build applications  
@@ -288,7 +290,7 @@ extended to include verification of Accounts and their data objects via the bloc
 
 Elements to a solution:
 1. To remove the need for an intermediary between the p2p network and the majority of  
-end­users, we enable direct connection to the network by end­users using the most  
+end-users, we enable direct connection to the network by end-users using the most  
 common and understood protocol, HTTP/HTTPS. This protocol is the most used  
 protocol for applications by far and the standard communication protocol used by  
 websites and mobile applications and is therefore relatively censorship resistant.
@@ -303,18 +305,18 @@ Accounts are the foundation to user access in Evolution, enabling users to crypt
 prove ownership of a pseudonymous identity that they create, and persist public and private  
 data related to that identity on the blockchain.
 Accounts are data structures stored on the blockchain that represent the various new types of  
-Users that Evolution serves, such as End­users (e.g. Consumers) and Applications (e.g.  
+Users that Evolution serves, such as end-users (e.g. Consumers) and Applications (e.g.  
 Businesses), who pay fees to the network in return for adding and updating their Account’s data,  
 essentially as subscribers to the network.
 
 ### 3.1 Account Subscriptions
 Users create Accounts by registering subscription data directly on the blockchain in the  
 metadata of specially constructed transactions called Subscription Transactions that also burn a  
-minimum amount of Dash via a provably unspendable null­data pubkey script in one of the  
+minimum amount of Dash via a provably unspendable null-data pubkey script in one of the  
 transaction’s outputs.
 Subscription data for an account consists of a identified for the type (e.g. a User), a unique key  
 for that type (e.g. a username), and a public key that lets the user prove they are the owner of  
-the account by signing challenges, and maintain a “fee­balance” consisting of a tallied quantity  
+the account by signing challenges, and maintain a “fee-balance” consisting of a tallied quantity  
 of Dash burned on the account that is spent to miners for including updates to the account state  
 in blocks. Note that the public key for the Account is purely for authentication and not to be  
 used as a payment address.
@@ -324,7 +326,7 @@ accessible and verifiable at an SPV level using existing tools. Also, as the amo
 subscription data each account needs to store in transactions during its life cycle is minimal, the  
 penalties of adding this data to the blockchain are minimal too with the amount of additional data  
 stored in transactions scaling linearly to the number of user signups.
-Using null­data pubkey scripts in a transaction output to register Accounts also has the benefit  
+Using null-data pubkey scripts in a transaction output to register Accounts also has the benefit  
 that funds can be burned at the same time that are provably unspendable and can then provide  
 a “Fee Balance” for the account (the use of which is to incentivize miners to include changes to  
 an Account’s state in blocks). However, rather than storing the metadata after an OP_RETURN  
@@ -345,8 +347,8 @@ Registering an Account with a Subscription Transaction
 Action  : An integer representing the type of Subscription Transaction, enumerating to the types  
 “Register”, “Topup”, “ChangePubKey” and “Deactivate”.
 Type  : This is an integer representing the type of account as defined in a JSON protocol called  
-the Schema which governs all data­structures in Evolution and is described later. For now we  
-assume all accounts are a type “User”, the main account type and targeted at end­users. The  
+the Schema which governs all data-structures in Evolution and is described later. For now we  
+assume all accounts are a type “User”, the main account type and targeted at end-users. The  
 account type cannot be changed by subsequent subscription transactions for this Account.
 AccKey  : A string of characters which must be unique within the total Account set on the  
 blockchain for the specified Account Type (similar to a primary key in a database). The AccKey  
@@ -363,7 +365,7 @@ and is spent on updates to the account later.
 
 #### 3.1.2 Subscription Status
 To identify Alice’s account in Evolution, the AccKey (“Alice”) and the account type (e.g. “User”)  
-are both required in combination, similar to a dual­primary key in a database, alternatively, the  
+are both required in combination, similar to a dual-primary key in a database, alternatively, the  
 hash of the initial registration transactions can be used.
 
 #### 3.1.3 Nodes can then validate the subscription status of an Account by querying the blockchain  
@@ -377,23 +379,23 @@ burned on the account (0.01 Dash), minus the minimum fee for signing up a user a
 (plus any Account update fees which are described later) to tally the account’s balance at 0.005  
 Dash.
 Nodes tally this balance by summing the amounts credited in the initial registration transaction  
-and subsequent top­up transactions existing in the blockchain, and then deducting the sum of  
+and subsequent top-up transactions existing in the blockchain, and then deducting the sum of  
 debits from the account in the form of fees deducted in object state transitions for the subscriber  
 in the blockchain (described later).
 Note that the only funds under the control of the subscriber's public key are those available as  
-the account fee­balance, and those funds can only be spent by updating objects under the  
+the account fee-balance, and those funds can only be spent by updating objects under the  
 control of that account. Subscribers cannot change data in other subscriber accounts (without  
-their private key) and cannot transfer fee­balances to another account, to minimize incentives to  
+their private key) and cannot transfer fee-balances to another account, to minimize incentives to  
 hack someones account. Therefore, if a subscriber’s private key is compromised, the attacker  
-can only use the available fee­balance to that Account’s data, or to deactivate the Account.  
+can only use the available fee-balance to that Account’s data, or to deactivate the Account.  
 
 #### 3.1.5 Account TopUps
-Account owners can top­up the fee­balance by creating a “Topup” subscription transaction with  
+Account owners can top-up the fee-balance by creating a “Topup” subscription transaction with  
 the registration transaction’s hash, and burning any additional amount of Dash, which is credited  
 to the subscriber’s account balance when tallying the current account subscription state. It does  
-not need to be signed by the Account owner, i.e. anyone can topup an Account’s fee­balance
+not need to be signed by the Account owner, i.e. anyone can topup an Account’s fee-balance
 
-Topping Up an Account’s Fee­Balance
+Topping Up an Account’s Fee-Balance
 
 
 #### 3.1.6 Changing the public key
@@ -417,7 +419,7 @@ required).
 
 
 This enables users to prevent unauthorized access to their account, as accounts cannot be  
-re­opened. It also means an attacker with the user’s private key could deactivate their account  
+re-opened. It also means an attacker with the user’s private key could deactivate their account  
 but this just prevents the rightful owner from updating any objects using the account because  
 the public key doesn’t hold funds, and the user can copy the account data and register a new  
 account.
@@ -425,12 +427,12 @@ account.
 ### 3.2 Account State
 An Account’s State is a representation of the current set of data and metadata related to an  
 Account subscription.
-When an Account is registered, it is in the ‘null­state’, until the Account owner creates data for  
+When an Account is registered, it is in the ‘null-state’, until the Account owner creates data for  
 the account.
 Updates to the Account data require a valid signature of the hash of the Owner state properties  
 (which include a hash of the data) for the public key of the Account derived from the subscription  
 transaction set.
-Meta state is created by miners who set the status of the account and the fee­balance, based on  
+Meta state is created by miners who set the status of the account and the fee-balance, based on  
 the Account’s activity and the consensus rules, described later.
 
 Account State derived from Subscription Transactions
@@ -485,7 +487,7 @@ the DataHash property in the Owner State.
 ## 4 Schema
 The types of Objects that Accounts can store, rules as to how they should be validated and their  
 permitted relationships within an Account and to other Account’s Objects, are defined in a  
-JSON­specified protocol known as the Schema.
+JSON-specified protocol known as the Schema.
 The Schema is defined in a single reference JSON specification that nodes and clients can  
 interpret programmatically or manually through successive versions and JSON is the native  
 format for interoperation using Objects across all Dash nodes and clients, that is to say that  
@@ -498,12 +500,12 @@ decouple Object implementation from Object validation, relay and storage, for ex
 code can validate an object based on the Schema rules, whilst remaining agnostic to the  
 specific functionality required to handle that Object Type in higher tiers such as the  
 Decentralized API or client applications. This also enables us to modify the Schema and add  
-new Object types in future without having to re­engineer large amounts of code, and for  
+new Object types in future without having to re-engineer large amounts of code, and for  
 example have separate teams working on the Schema design (in JSON) and the various  
 implementations in nodes and clients. The Schema architecture can also be extended in future  
-to allow 3rd party apps to implement their own sub­schemas to integrate functionality  
+to allow 3rd party apps to implement their own sub-schemas to integrate functionality  
 customized for their own requirements.
-Some additional benefits of using a ‘dynamic’ design­time protocol such as the Schema for  
+Some additional benefits of using a ‘dynamic’ design-time protocol such as the Schema for  
 Objects are:
 ●
 ●
@@ -512,7 +514,7 @@ Objects are:
 ●
 ●
 Core/DAPI are object agnostic
-End­to­end reference spec for object validation
+End-to-end reference spec for object validation
 Decouple business layer from data access layer
 OO enables code reuse
 Enables polymorphic code use in Clients e.g. reuse functionality that processes base  
@@ -520,11 +522,11 @@ class properties and constraints on derived classes
 Enables programmatic code generation for e.g. Client SDK object sets
 The Schema has the properties of both an entity relationship (ER) model and a unified  
 modelling language (UML) model used in Object Oriented Programming (OOP). This means  
-that Dash Evolution functions somewhat like an decentralized object­oriented relational  
-database application for end­users and 3rd party applications, where the table rows are instead  
-Objects defined by the Schema’s JSON definition at design­time.
+that Dash Evolution functions somewhat like an decentralized object-oriented relational  
+database application for end-users and 3rd party applications, where the table rows are instead  
+Objects defined by the Schema’s JSON definition at design-time.
 In this section we present the basic Schema elements, followed by walkthrough of an example  
-implementation of a real­world use­case using the Schema to signup a user and friend another  
+implementation of a real-world use-case using the Schema to signup a user and friend another  
 
 
 user and pay between themselves using automatically generated Dash addresses that aren’t  
@@ -564,14 +566,14 @@ Schema as Object Classes. Actual Object data which instantiate the class definit
 referred to as Object Instances, or just Objects.
 1
  R
- FC 7159 ­ The JavaScript Object Notation (JSON) Data ... ­ IETF Tools
+ FC 7159 - The JavaScript Object Notation (JSON) Data ... - IETF Tools
 
 
 //
  A
  bstract
  B
- ase­Object
+ ase-Object
  C
  lass
  d
@@ -660,7 +662,7 @@ ObjectBase
  1
  =
  m
- ulti­instance,
+ ulti-instance,
  n
  once
  b
@@ -924,7 +926,7 @@ example a User, App or Masternode Account.
  A
  ccount
  R
- oot­Object
+ oot-Object
  C
  lass
  d
@@ -1036,7 +1038,7 @@ RootBase:
 
 }
 #### 4.2.2 Leaf Objects
-Leaf Objects are non­root Objects, i.e. with an index > 0 in the Object Merkle tree
+Leaf Objects are non-root Objects, i.e. with an index > 0 in the Object Merkle tree
 //
  A
  bstract
@@ -1094,7 +1096,7 @@ remain agnostic to Objects defined in the Schema Model, processing them based on
 the current Schema Base, with most of the functionality provided between Clients tightly coupled  
 to the current Model protocol number. This also enables a lot of flexibility, because  
 improvements can be made to the Schema model such as expanding Object types or adding  
-new user interactions, without having to re­engineer the core system.
+new user interactions, without having to re-engineer the core system.
 The full Schema Model for Dash Evolution will be detailed later, but for now we can specify the  
 most fundamental Account type which is a Root Object that can represent a User, ownership of  
 which will enable the user to login, store & retrieve data, and connect and communicate with  
@@ -1114,7 +1116,7 @@ Dash Evolution
  R
  oot
  A
- ccount­Object
+ ccount-Object
  C
  lass
  d
@@ -1241,8 +1243,8 @@ requests
 
 }
 ### 4.4 Payment Objects
-The Schema also provides a 3rd type,   Payment Objects  , which are read­only abstractions of  
-the existing Tier­1 (payments level) blockchain data structures derived from confirmed  
+The Schema also provides a 3rd type,   Payment Objects  , which are read-only abstractions of  
+the existing Tier-1 (payments level) blockchain data structures derived from confirmed  
 transactions and made available as Evolution Objects, to enable applications to access these  
 structures easily if required and for Objects to reference them internally:
 
@@ -1252,8 +1254,8 @@ structures easily if required and for Objects to reference them internally:
 ●
 Block, Tx and Address are the main object types used in the current payment level of  
 the current Dash protocol
-Subscription Transactions are null­data transactions with subscription metadata  
-indicating the ownership, status and fee­balance of an Account
+Subscription Transactions are null-data transactions with subscription metadata  
+indicating the ownership, status and fee-balance of an Account
 Collateral are UTXO with specific metadata used in Evolution, and are used for  
 Masternode Shares.
 SuperBlocks (SBs) that pay winning Proposal Objects are created deterministically by  
@@ -1263,8 +1265,8 @@ Miners in Evolution, with payments added as outputs in the SB’s coinbase trans
 ### 4.5 State Sequences
 Now that have defined the abstract types in the Schema Base and introduced the Schema  
 Model, we can derive some example types of Object in the model to illustrate how Object  
-functions are implemented and the sequence of states that multi­party interactions observe  
-using a basic test use­case of user friending for private C2C (consumer­to­consumer)  
+functions are implemented and the sequence of states that multi-party interactions observe  
+using a basic test use-case of user friending for private C2C (consumer-to-consumer)  
 payments.
 
 #### 4.5.1 Requirements
@@ -1299,7 +1301,7 @@ be entered, preventing duplicate users or contact requests through the use of fo
 constraints on the primary keys of both tables
 
 #### 4.5.3 Decentralized Design
-To implement the use­case in a fully decentralized and trustless way using the Account, Object  
+To implement the use-case in a fully decentralized and trustless way using the Account, Object  
 and Schema concepts detailed above, we can use a similar approach to the centralized / trusted  
 database model, but with some limitations:
 ●
@@ -1558,7 +1560,7 @@ The foreign key relation with BlockedUsers to a valid User Account is implied, m
 be validated using a network consensus, because the key is within an encrypted blob only the  
 User can decrypt, meaning relational integrity is reliant on correct Client implementations.  
 Interestingly, as Blob contents can never be validated using a network consensus, Client  
-applications could implement their own custom functionality for state­sequence base Account  
+applications could implement their own custom functionality for state-sequence base Account  
 
 
 interoperation within the Objects and relations defined in the public model, using encrypted  
@@ -1566,20 +1568,20 @@ Blobs as the storage unit containing custom properties, although size of Blob’
 
 #### 4.5.7 State Sequence
 With the Objects and relations defined, we can explain the key concept in understanding how  
-Evolution implements database­like functionality for end­users but in a decentralized and  
+Evolution implements database-like functionality for end-users but in a decentralized and  
 trustless way, which we call a State Sequence.
 The State Sequence enables sets of Accounts who want to interact to communicate information  
 by only changing their own Object data, with states transitioning in the kind of sequences found  
 in a centralized database application, but with users only changing their own data.
 The design pattern is essentially a semaphore, where users change their own state referencing  
 a foreign account who is observing any changes in account objects related to their account.
-For the user­friending case we are describing, we introduce a diagrammatical format to  
+For the user-friending case we are describing, we introduce a diagrammatical format to  
 represent the changes in interrelated account state transitions through a Schema defined state  
-sequence, called a State­Sequence diagram, below.
+sequence, called a State-Sequence diagram, below.
 Each row represents a state in the sequence, showing only new or updated Objects in each  
 account being sequenced.
 The first column, Named State, represents a predefined state (in the Schema) that represents  
-some meaningful state in real­world use cases, that can be determined by nodes and clients  
+some meaningful state in real-world use cases, that can be determined by nodes and clients  
 based on the state of an Account’s objects.
 
 State Sequence: Friending Process (Simple Example)
@@ -1599,7 +1601,7 @@ ContactID referenced to Alice.   If Bob chose to decline Alice, he could update 
 to show Alice’s request.
 4. Both Alice and Bob store an extensible HD pubkey for each other in the blob in their
 UserContact Object, this lets the other user derive future payment addresses without
-needing to re­exchange addresses (not shown in diagram) and as the data is encrypted
+needing to re-exchange addresses (not shown in diagram) and as the data is encrypted
 by each user for the other user, the transactions are not linked to the user’s Account
 data, unless the private keys for either user’s Account PubKey are compromised at
 some point the future.
@@ -1638,7 +1640,7 @@ with 2 different types of persistence requirement; State Transitions must have f
 across all nodes and cannot be pruned (except for Closed Accounts), which scales linearly to  
 the number of transactions (generally, and presuming transitions are being used as essentially  
 metadata facilitating transactions and not wastage). The Active Dataset, however, represents  
-just the upto­date state of user Account data, and therefore scales linearly to the number of  
+just the upto-date state of user Account data, and therefore scales linearly to the number of  
 users (generally speaking).
 
 For these reasons, we store State Transitions directly in blocks in a process analogous to  
@@ -1648,7 +1650,7 @@ For the Account Data, i.e. the Active Dataset of Objects derived from state tran
 pruned to a recent depth to represent only the current state of constantly changing user data,  
 blocks would be unsuitable due to their immutability, and therefore we need a more efficient  
 storage mechanism that essentially stores sets of Objects that are mutable based on the state  
-transitions in new blocks, which we call the Drive, or ‘DashDrive’ for end­users
+transitions in new blocks, which we call the Drive, or ‘DashDrive’ for end-users
 
 ### 5.2 State Transitions
 Transitions represent the sequence in changes to an Account’s state and metadata are added  
@@ -1668,7 +1670,7 @@ below).
 Meta state contains metadata data is set by the Miner based on the transition consensus rules
 ● A rating is set when other Accounts in the block have Objects with Ratings set on this  
 Account Object. The miner must calculate the correct rating by averaging the total score  
-value (sum of 0­10 rating scores) with the total score count which is specified in the  
+value (sum of 0-10 rating scores) with the total score count which is specified in the  
 previous transition for this Account
 ● A balance is set, equal to the balance at the last Transition in a block, plus the sum of  
 any topup subscription transactions, minus the fees for this update
@@ -1678,7 +1680,7 @@ and more statuses can be added later
 #### 5.2.3 Quorum Sigs
 ●
 Quorum Sigs are signatures for the Transition Data section only from the Masternodes  
-that submitted the transition, and are used for Proof­of­Service and can be pruned after  
+that submitted the transition, and are used for Proof-of-Service and can be pruned after  
 the next MN reward cycle concludes (e.g. 2 weeks)
 
 #### 5.2.4 Transition Structure
@@ -1710,7 +1712,7 @@ AccNonce  uint32_t  4  Incremented integer for each Transition
 for each account
 DataSize  uint32_t  4  Size of account data being committed in
 this Transition. Used for fee calculation
-Sig  char[]  71­73  Signature of the data for the most recent
+Sig  char[]  71-73  Signature of the data for the most recent
 pubkey entered in a Subscription
 Transaction  
 PrevTsHash  uint32_t  32  Hash of the previous Transition for this
@@ -1718,14 +1720,14 @@ Account
 RatingCount  uint32_t  4  RatingTotal  uint32_t  4  Updated rating based on other accounts
 commit Objects that rate this account in
 this block
-FeeBalance  uint32_t  4  Updated fee­balance after this state
+FeeBalance  uint32_t  4  Updated fee-balance after this state
 transition fee is deducted for inclusion in
 a block.  
-QuorumSigs  char[]  213­
+QuorumSigs  char[]  213-
 219  Sig of Owner State hash by Quorum
 Masternodes. Excluded from State
 Transition hash and used only for
-Proof­of­Service.   Can be pruned after
+Proof-of-Service.   Can be pruned after
 the next MN reward cycle.
 
 #### 5.2.5 Incentives
@@ -1757,7 +1759,7 @@ subscription transactions starting with the referenced registration tx hash
 Check the previous data hash maps to last data hash confirmed in a block for this  
 Account
 Check the AccNonce is greater than the AccNonce in the previous transition  
-Check if the Account fee­balance can afford the commit cost (balance ­ fees > 0)
+Check if the Account fee-balance can afford the commit cost (balance - fees > 0)
 Add the fees (fee * numUpdates) to the coinbase (this is deducted from the user’s burn  
 tx by checking the blockchain)
 Check the datasize is valid for the total data size of Objects committed
@@ -1771,7 +1773,7 @@ Meta State
 ●
 ●
 Check the previous transition hash is the last transition for this account
-Check the rating data & fee­balance (described later)
+Check the rating data & fee-balance (described later)
 Quorum Commit
 ●
 Note, quorum sigs are pruned after the next Masternode reward cycle, so this verification  
@@ -1789,7 +1791,7 @@ the root included in the block’s header, enabling Clients to validate whether 
 State exists in a block using a simplified verification process and enabling state transitions for  
 closed accounts to be pruned.
 The root hash of all Transitions in the block is hashed as part of the block header during  
-Proof­of­Work to gain consensus on the new state of all accounts that have transitioned since  
+Proof-of-Work to gain consensus on the new state of all accounts that have transitioned since  
 the previous block.
 
 State Transitions in a Block
@@ -1871,7 +1873,7 @@ that the data for many differential states can be pruned, for example a user upd
 100 times results in only 1 copy of the profile Object being stored on nodes.
 An exception to this is that some differential states need to be kept for a limited period for block  
 validation, based on the prune depth definition for the Object type in the schema.
-This design is aimed at every­day user access patterns, because for example, a typical user  
+This design is aimed at every-day user access patterns, because for example, a typical user  
 won’t care about seeing all past revisions of their profile information, they are just concerned  
 with the active set that other users will see and nodes will independently verify. If data revisions  
 from the inactive set are needed by a user and they were pruned from the network, only a single  
@@ -1883,10 +1885,10 @@ website listing historical data and validate the Object’s authenticity and pre
 blockchain. Alternatively, users wishing to keep every revision can run their own fullnode with  
 pruning disabled on their account.
 Effectively, Account data are notarized in blocks, with the notarized data stored in parallel  
-storage that’s pruned to a set­size relating to the number of end­users rather than the number of  
+storage that’s pruned to a set-size relating to the number of end-users rather than the number of  
 transactions (and therefore new addresses) that they are adding to the chain.
 The key reason to use a secondary store that extends each block is that blocks are best suited  
-to retain full data on the transitions between states, whereas Drive’s main use­case is to  
+to retain full data on the transitions between states, whereas Drive’s main use-case is to  
 maintain a current ‘Active’ state for Account data, with deprecated states being pruned at a  
 certain depth, e.g. after 1 month (depending on the Object definition in the Schema) .
 
@@ -1908,28 +1910,28 @@ created in Drive. As Account owners create state transitions, the corresponding 
 for new or updated Objects in the Account are committed to Drive as a new row, with the first  
 row representing the resolved Active State of all past data transitions for the Account.
 We can model this structure as a data cube, with the total set of registered Accounts forming the  
-X­axis, and the Z­axis representing historical additions and updates of Objects leading up to the  
+X-axis, and the Z-axis representing historical additions and updates of Objects leading up to the  
 current, active state.
 
-2­dimensional storage of Account Data Transitions
+2-dimensional storage of Account Data Transitions
 
 
-We can create a 3rd dimension in the data cube on the Y­axis by grouping Objects by Schema  
+We can create a 3rd dimension in the data cube on the Y-axis by grouping Objects by Schema  
 type, which enables optimizations to be made based on the different usage and verification  
 requirements of types, for example constructing and verifying meta state transitions for Object  
 ratings requires fast searching of Rating trigger Objects by miners preparing a new block to  
 minimize verification costs.
 
 
-3­dimensional storage of Account Data Transitions by Object Type
+3-dimensional storage of Account Data Transitions by Object Type
 
 The diagram shows Objects within a data transition segregated by Schema type, with types  
-separated along the Y­axis of the data cube.
+separated along the Y-axis of the data cube.
 
 ### 6.5 Data Partitioning
 Because Object data are always grouped by Accounts that are atomic (that can only be updated  
 by Account Owners without any transfer of data ownership or rights), the Drive data can also be  
-pruned on a per­account basis on Nodes without the capacity to store the full Object dataset,  
+pruned on a per-account basis on Nodes without the capacity to store the full Object dataset,  
 either randomly or based on Accounts that are closed or haven’t had activity for a long time (e.g.  
 12 months).
 In such a case, only a single node with a copy of the data is required to restore it, or the data  
@@ -1939,39 +1941,39 @@ key relations are needed to perform relational validation historically, for exam
 contact request from Alice to Bob, the consensus rules dictate that Bob must exist to maint the  
 relational integrity of the overall Object set in Drive.
 Below we illustrate (generically) depths at which Object transitions can be pruned based on the  
-PruneDepth specified in the Object’s Schema definition, shown on the Z­axis of the data cube.
+PruneDepth specified in the Object’s Schema definition, shown on the Z-axis of the data cube.
 
 Pruning Transitions by Object Type
 
 
-The main reason to use an informal, ad­hoc approach to partitioning instead of a formal  
+The main reason to use an informal, ad-hoc approach to partitioning instead of a formal  
 sharding strategy is that formal sharding can weaken the durability of the data because  
 attackers can target specific data with knowledge of the subset of nodes that are storing that  
 data. There is also an overhead to formal sharding with the need to organize and rebuild shards  
 as nodes turnover, as opposed to nodes for example randomly pruning old Accounts when they  
 run low on disk space.
-The diagram below shows an ad­hoc Account pruning strategy, with 2 of the 6 accounts pruned  
-along the X­axis of the data cube.
+The diagram below shows an ad-hoc Account pruning strategy, with 2 of the 6 accounts pruned  
+along the X-axis of the data cube.
 
 Account Pruning
 
 
 ## 7 Decentralized API
-DAPI is the decentralized Application Programming Interface that enables Evolution end­users  
+DAPI is the decentralized Application Programming Interface that enables Evolution end-users  
 and applications to connect directly to the Dash P2P network to read/update Account data and  
 read/create Transactions using HTTPS enabled clients such as browsers and mobile  
 applications.
 
 ### 7.1 Network Architecture
-DAPI is part of a re­architecting of Dash’s network design in Evolution to introduce a way for  
+DAPI is part of a re-architecting of Dash’s network design in Evolution to introduce a way for  
 Clients to access the P2P network securely and directly.
 This is because in the current design inherited from Bitcoin, there is really no suitable protocol  
-level definition of a Client as there is in most service models (such as Client­Server), as every  
+level definition of a Client as there is in most service models (such as Client-Server), as every  
 user is expected to access via a P2P node and interact as a peer directly, which is an  
 understandable assumption in the early versions of Bitcoin, where every node was a miner,  
 auditor, and maintained a full local copy of the blockchain, without foreknowledge of the  
-segregation of roles introduced with developments such as pools, asics and non­mining  
-(non­rewarded) fullnodes, and a mass exodus of desktop users to browser/mobile based  
+segregation of roles introduced with developments such as pools, asics and non-mining  
+(non-rewarded) fullnodes, and a mass exodus of desktop users to browser/mobile based  
 applications since Bitcoin was launched.
 There are different modes of P2P node that users can operate under in the existing  
 architectures, with the closest thing to a client being a user operating a node without a copy of  
@@ -1982,7 +1984,7 @@ existing P2P Network Protocol, with Clients being any device running software th
 DAPI over HTTPS using the correct interoperation protocol.
 
 #### 7.1.1 Security Model
-The security model for DAPI and its clients is based on this non­P2P selfish SPV node model,  
+The security model for DAPI and its clients is based on this non-P2P selfish SPV node model,  
 whereby Clients can connect to Nodes and add data to the blockchain (Transactions and  
 Transitions) without needing to participate as peers and using the most commonly supported  
 and censorship resistant protocol, HTTPS. Clients can also access any node in the network to  
@@ -1991,52 +1993,52 @@ Another aspect to mention regarding DAPI’s security model is that it is based 
 of private keys by client users, with private keys never entering DAPI, i.e. DAPI nodes cannot  
 steal users funds. DAPI nodes also never serve code or content, e.g. JavaScript or HTML to a  
 browser; DAPI is purely an XHR over HTTPS based API accessed by (ideally)  
-deterministically­built open­source clients.
-In addition, DAPI nodes must work together in 3­of­5 Masternode Quorums and agree on the  
+deterministically-built open-source clients.
+In addition, DAPI nodes must work together in 3-of-5 Masternode Quorums and agree on the  
 validation of Client requests and the content of Client responses, with the Quorum formed  
 deterministically based on a hash of the user’s Account public key and a recent block hash to  
-prevent pre­planned targeted attacks on individual sets of nodes. DAPI Quorums provide  
+prevent pre-planned targeted attacks on individual sets of nodes. DAPI Quorums provide  
 redundancy to uncommitted Client session data and reduce the chance of malicious nodes  
 wasting Client time with responses that Clients subsequently invalidate using SPV (with the  
 Client SPV process being applied externally to the Client’s Quorum, i.e. network wide).
 
 #### 7.1.2 Network Topology
 The connection topology for Dash then bifurcates into 2 rings in the network. The current P2P  
-network topology (technically a partially­connected mesh) becomes the inner ring consisting of  
+network topology (technically a partially-connected mesh) becomes the inner ring consisting of  
 P2P nodes that validate, persist and provide the blockchain to other P2P nodes, with an outer  
 ring consisting of individual Clients connected directly to a cluster of collateralized P2P nodes  
-serving HTTPS requests (Client / Multi­node­server) instead of intermediary proxy services that  
-connect P2P on the backend, which we call the Client­to­Peer (C2P) network, technically a  
-Client­to­collateralized­Peer­quorum network, also known as Tier­3 in Dash.
+serving HTTPS requests (Client / Multi-node-server) instead of intermediary proxy services that  
+connect P2P on the backend, which we call the Client-to-Peer (C2P) network, technically a  
+Client-to-collateralized-Peer-quorum network, also known as Tier-3 in Dash.
 One issue with this structure is the incentives model or specifically lack of incentivizes for  
-fullnodes to support a very­large amount of selfish nodes; currently the incentive model is pure  
+fullnodes to support a very-large amount of selfish nodes; currently the incentive model is pure  
 p2p based, i.e. overall the p2p network survives with enough nodes seeding (operating as  
 relaying fullnodes accepting inbound connections) in the network to handle the additional traffic  
 from a relatively small amount of leechers (mostly desktop wallets, centralized proxies such as  
-SPV proxies, web wallets and payment processors) which end­users and applications connect  
-to. By removing the need for leechers to connect via proxies (i.e. the majority of end­users not  
+SPV proxies, web wallets and payment processors) which end-users and applications connect  
+to. By removing the need for leechers to connect via proxies (i.e. the majority of end-users not  
 wishing to participate or support the P2P network directly) , and therefore resulting in a large  
 increase in selfish nodes (clients who can now access the network directly instead of via  
 centralized SPV or Web wallet proxies), the cost to running a fullnode increases and the  
 incentives model of the P2P network is broken.
-In Dash obviously nodes are incentivized to provide non­mining services but not specifically to  
+In Dash obviously nodes are incentivized to provide non-mining services but not specifically to  
 handle this new topology, i.e. currently nodes could still be rewarded without provably serving  
-these end­users honestly. To solve this, we alter collateralized nodes (Masternodes) rewards to  
+these end-users honestly. To solve this, we alter collateralized nodes (Masternodes) rewards to  
 be provisional on the amount of Client data they add to the blockchain (technically, the quantity  
 of Account State Transitions), which provides incentives to users who choose to operate nodes  
 that will serve HTTPS Clients and a deterministic way to ensure only nodes providing an  
-adequate (and honest) Client­service level are rewarded.
+adequate (and honest) Client-service level are rewarded.
 
 ### 7.2 Client Protocol
 There are two modes of connection Clients can use:
 ●
 ●
-Passive Sessions   ­ Anonymous, read­only access to the Account API (to query
+Passive Sessions   - Anonymous, read-only access to the Account API (to query
 Account data), and anonymous read/write access to the Payment API (to query the
 blockchain and create transactions)
-Interactive Sessions   ­ All the abilities of a passive session plus the ability to
+Interactive Sessions   - All the abilities of a passive session plus the ability to
 pseudonymously update the data for Accounts to which the user holds the private key.
-Requires nonce­based mutual authentication between the Client and the Masternode
+Requires nonce-based mutual authentication between the Client and the Masternode
 quorum maintaining the session.
 When an Account Owner wants to start an interactive session (i.e. update their Account state)  
 with DAPI from a Client, there are several steps they need to perform. Note this is not needed  
@@ -2050,7 +2052,7 @@ Masternodes their client must connect to to be able to update their account stat
 A Client can connect to any number of nodes in the Dash network to obtain the Masternode list  
 and validate its contents using SPV, using essentially the same security model as SPV/Electrum  
 clients but with a much higher degree of decentralization, i.e. Clients can access any node in the  
-Dash network instead of having to proxy through a small set of centralized layer­2 servers, and  
+Dash network instead of having to proxy through a small set of centralized layer-2 servers, and  
 as that access is HTTPS based, it is available from any HTTPS enabled Client, such as a web  
 browser
 Clients can use HTTPS DNS seeds that the community setup to build an initial list of  
@@ -2065,8 +2067,8 @@ RegTX hash of the Account who is accessing the Quorum.
 Once a Client has constructed a valid active Masternode list, they determine their quorum and  
 connect to it using an authentication process specific to DAPI: DAuth, or Decentralized  
 Authentication.
-The principle of DAuth is that, instead of a one­way authentication as in the case of  
-client­server, where the server authenticates the client, both parties in a point­to­point  
+The principle of DAuth is that, instead of a one-way authentication as in the case of  
+client-server, where the server authenticates the client, both parties in a point-to-point  
 connection between two parties (e.g. Client to Node in DAPI) authenticate each other, and using  
 a decentralized source (e.g. SPV verifiable data sourced from any node in the network).
 Once both parties (e.g. client and masternode) have authenticated each other, they  
@@ -2078,13 +2080,13 @@ Note: Typically Alice would be an Evolution client like a web browser and Bob wo
 Masternode, but these roles are not hardcoded into the protocol.
 
 This provides a high level of security in terms of message authenticity and integrity and is the  
-basis of Client­node connections in DAPI.
+basis of Client-node connections in DAPI.
 
 ### 7.3 Quorum State Transitions
 
 #### 7.3.1 Creation
 Transitions from users on their Accounts are created during authenticated interactive  
-Client­Quorum Sessions, during which time the designated Quorum caches any updates to the  
+Client-Quorum Sessions, during which time the designated Quorum caches any updates to the  
 Account’s Data Objects and at set intervals (2.5 minutes) propagates these as a batch  
 representing a new Account State to nodes in a State Transition data structure.  
 The State Transition must contain a complete updated Owner State, and a partial data section,  
@@ -2093,7 +2095,7 @@ tree hashes between the root and leaf nodes aren’t needed within the data as v
 can build these locally.
 
 If validated by a miner, the State Transition has its data included in a block by miners for a fee  
-deducted from the Account’s tallied fee­balance, and its data (that was notarized by the  
+deducted from the Account’s tallied fee-balance, and its data (that was notarized by the  
 transitions inclusion in the block) included in Object Storage by Masternodes who must provably  
 facilitate a minimum quota of State Transitions per payment cycle relative to the total volume  
 and number of nodes, to receive rewards from the infrastructure portion of the block reward.
@@ -2109,7 +2111,7 @@ per block.
 
 #### 7.3.2 Transition Authorization
 Once the Quorum has assembled the State Transition, it sends the header (which includes the  
-root hash of the data) to the Account’s connected Clients for authorization using a web­socket  
+root hash of the data) to the Account’s connected Clients for authorization using a web-socket  
 callback or as part of a poll response.
 Each Client then compares the root hash of the merkle tree for their local Object set to the root  
 DataHash in the State Transition header, and if the header is valid, signs the header hash with  
@@ -2121,11 +2123,11 @@ The SPV implementation for the Client protocol is being prepared in a separate p
 
 ## 8 DashPay Model
 DashPay is the JSON Schema Model that specifies the Object types and rules that implement  
-the Dash Evolution features to end­users. DashPay is in effect a decentralized application  
+the Dash Evolution features to end-users. DashPay is in effect a decentralized application  
 running on top of Dash where end users and applications can interact trustlessly via state  
-sequences within the rule­set defined in the Schema.
+sequences within the rule-set defined in the Schema.
 We can represent the Objects in the Schema Model at a high level using a UML  
-Composition­style diagram:
+Composition-style diagram:
 
 DashPay Schema Model Composition
 Note: JSON and State Sequences for the Model are being prepared in a separate paper.
@@ -2201,7 +2203,7 @@ total requirement themselves, to increase the cost to setup a malicious masterno
 apart from opportunity cost or the risk of the Masternode operator not running their node  
 with enough uptime or service level to receive the reward.
 
-### 9.3 Proof­of­Service Verification
+### 9.3 Proof-of-Service Verification
 Proof of Service is a deterministic verification technique that ensures that Masternodes are  
 providing adequate service levels to the network before being paid any reward, and is key to  
 maintaining the incentives model of Dash Evolution. This is because if we don’t force  
@@ -2209,10 +2211,10 @@ Masternodes to provide an adequate level of service in providing DAPI to Clients
 new increased storage obligations, they can lower their costs by bypassing checks and not  
 providing services and storage that will cost them additional bandwidth, disk and CPU/Memory,  
 which results in less throughput, durability and availability for the Dash Network which translates  
-to a less secure and less available service for Clients ­ it is fundamental to the long term  
+to a less secure and less available service for Clients - it is fundamental to the long term  
 economic viability of Dash as a decentralized cryptocurrency, and to date there has been no  
 deterministic solution, i.e. bypassable with enough effort (even though there has been no  
-indication that any nodes have been modified to bypass existing non­deterministic PoSe).
+indication that any nodes have been modified to bypass existing non-deterministic PoSe).
 1. Tally the total number of State Transitions in blocks within the current Masternode  
 payment cycle (e.g. 2 weeks)
 2. Divide this number by the average number of active Masternode Accounts within the  
@@ -2224,7 +2226,7 @@ pruned after a single MN payment cycle)
 cycle.
 Therefore, Masternodes must be committing State Transitions to a minimum quota to get  
 rewarded in a payment cycle, and as each transition has a fee, so Masternodes cannot create  
-the State Transitions themselves as it would be a zero­sum­game (and also the MN operator  
+the State Transitions themselves as it would be a zero-sum-game (and also the MN operator  
 cannot predict which Accounts he/she is designated to serve as quorum determination is based  
 on a recent block hash).
 
