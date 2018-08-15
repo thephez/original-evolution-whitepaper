@@ -169,1424 +169,720 @@ their product SKU’s within it and retrieve these on either their server or cli
 either link their existing pipeline implementation to Dash, or if fiat transactions are not required,
 implement their whole pipeline off of Dash’s object implementation. They can then link Dash
 users directly to their local users and bill them and confirm payment using object based HTTPS
-API calls to the Dash Network without having to integrate any non-standard functions such as 
-addresses and transactions on their backend, and they can do this with a lite (SPV) 
+API calls to the Dash Network without having to integrate any non-standard functions such as
+addresses and transactions on their backend, and they can do this with a lite (SPV)
 implementation through the API or with their own fullnode if they want full trustless operation.
 
-For end-users, after signing up they can access their full account and history from any location, 
-connect with and pay friends, and discover and “install” (authorize) Apps that they can then 
-interact with, either within Dash (if the App is listing product objects) or externally through the 
-App’s own interface. They also have access to a wide range of features, such as account types 
-like savings, cash (anonymous), joint (multi-sig) and vaults (covenants), or payment types such 
-as one-time payments, moderated refunds or recurring auto-payments (subscriptions), without 
+For end-users, after signing up they can access their full account and history from any location,
+connect with and pay friends, and discover and “install” (authorize) Apps that they can then
+interact with, either within Dash (if the App is listing product objects) or externally through the
+App’s own interface. They also have access to a wide range of features, such as account types
+like savings, cash (anonymous), joint (multi-sig) and vaults (covenants), or payment types such
+as one-time payments, moderated refunds or recurring auto-payments (subscriptions), without
 having to manage addresses or manually lookup a transaction in a block explorer.
 
 ### 2.3 Consensus
-The Dash Blockchain stores transaction data in an immutable, decentralized consensus with full  
-durability, that is with a zero probability of data loss with at least one honest fullnode available.  
-In the case of Accounts and their Object data, and maintaining a consensus on the correct  
-sequence of transitions of Account states, the blockchain would be the most durable method to  
-store all Account data in a chain of state transitions, but it is also the most expensive. In fact, in  
-the type of decentralized e-commerce applications that Evolution is designed to support, the  
-meta-data the objects support around each payment would increase blockchain growth several  
-times, linearly to the increase in payment volume. The economics of this kind of overhead, even  
-with an incentivized node network, are infeasible because essentially the cost of storing meta  
-data around a payment cannot be many times the cost of the actual payment on the blockchain  
-because it does not add the same increase in value to end users of using DAPI over a basic  
+The Dash Blockchain stores transaction data in an immutable, decentralized consensus with full
+durability, that is with a zero probability of data loss with at least one honest fullnode available.
+In the case of Accounts and their Object data, and maintaining a consensus on the correct
+sequence of transitions of Account states, the blockchain would be the most durable method to
+store all Account data in a chain of state transitions, but it is also the most expensive. In fact, in
+the type of decentralized e-commerce applications that Evolution is designed to support, the
+meta-data the objects support around each payment would increase blockchain growth several
+times, linearly to the increase in payment volume. The economics of this kind of overhead, even
+with an incentivized node network, are infeasible because essentially the cost of storing meta
+data around a payment cannot be many times the cost of the actual payment on the blockchain
+because it does not add the same increase in value to end users of using DAPI over a basic
 core-client payment.
+
 The main problems with storing full data for Accounts and their Objects on the Blockchain are:
- - Transactions involve a movement of funds from which the fees to include transactions in  
-a block can be deducted from easily. Storing additional Objects that don’t transfer funds  
+
+ - Transactions involve a movement of funds from which the fees to include transactions in
+a block can be deducted from easily. Storing additional Objects that don’t transfer funds
 has the problem of providing no incentives for miners to include them in blocks.
- - As entities designed to abstract transactions within the kind of processes end-users and  
-applications are familiar with, Objects inherently will have a larger data size than the  
-transactions that they encapsulate. This will result in a larger chain, with chain size  
-already being one of the key limitations of cryptocurrencies in general in terms gaining  
-traction with an alternative to centralized payments systems that can process payments  
-with orders of magnitude more transactions per second and without a O(n) overhead and  
-at a much lower cost to the operators involved. Dash alleviates this problem by  
-rewarding collateralized nodes to host higher capacity infrastructure as usage as the  
-system scales from the block reward, but this is still subject to the problem that if  
-provision costs overtake rewards, the network capacity and availability is dependant on  
-altruism and capacity starts to decrease and infrastructure becomes more centralized to  
+ - As entities designed to abstract transactions within the kind of processes end-users and
+applications are familiar with, Objects inherently will have a larger data size than the
+transactions that they encapsulate. This will result in a larger chain, with chain size
+already being one of the key limitations of cryptocurrencies in general in terms gaining
+traction with an alternative to centralized payments systems that can process payments
+with orders of magnitude more transactions per second and without a O(n) overhead and
+at a much lower cost to the operators involved. Dash alleviates this problem by
+rewarding collateralized nodes to host higher capacity infrastructure as usage as the
+system scales from the block reward, but this is still subject to the problem that if
+provision costs overtake rewards, the network capacity and availability is dependant on
+altruism and capacity starts to decrease and infrastructure becomes more centralized to
 businesses that depend on capacity to operate.
 
-At the same time, the Blockchain is the only secure way to achieve decentralized consensus on  
+At the same time, the Blockchain is the only secure way to achieve decentralized consensus on
 Account states and their histories. For these reasons, we take the approach:
-1. We only use the Blockchain to keep a record of what an Account’s Data   should   be, using  
-it’s hash, and then offload the storage of the actual Objects to Masternodes who are paid  
+
+1. We only use the Blockchain to keep a record of what an Account’s Data   should   be, using
+it’s hash, and then offload the storage of the actual Objects to Masternodes who are paid
 only if they store that Object Data and provide it on the network when needed.
-2. Incentivize miners to include Object hashes in blocks by forcing users to burn a minimum  
-quantity of Dash at the time of Object creation, then use this as an account balance from  
+2. Incentivize miners to include Object hashes in blocks by forcing users to burn a minimum
+quantity of Dash at the time of Object creation, then use this as an account balance from
 which a fixed fee is allocated to a miner when they include that Object hash in a block.
-3. Enable nodes to store only a subset of Object’s Data (whilst maintaining a full set of  
-blocks and the contained Object hashes) to spread the cost of data provision across  
-nodes, i.e. O(n/s), where s is the size of the subset as a factor of the total number of  
+3. Enable nodes to store only a subset of Object’s Data (whilst maintaining a full set of
+blocks and the contained Object hashes) to spread the cost of data provision across
+nodes, i.e. O(n/s), where s is the size of the subset as a factor of the total number of
 Objects nodes are required to provide.
-4. Force collateralized nodes to proof a minimum level of service deterministically to  
+4. Force collateralized nodes to proof a minimum level of service deterministically to
 receive rewards for providing Account access and storage
+
 This gives us the properties:
- - An Account and every state-transition in its history can be validated by comparing its  
-hash  to the hash in the Block’s Merkle Tree. This means that in the event of data loss  
-from e.g. mass correlated node failure, only a single copy of the Object’s Data needs to  
-be reintroduced for the network to the validate, propagate and persist that data, for  
+
+ - An Account and every state-transition in its history can be validated by comparing its
+hash to the hash in the Block’s Merkle Tree. This means that in the event of data loss
+from e.g. mass correlated node failure, only a single copy of the Object’s Data needs to
+be reintroduced for the network to the validate, propagate and persist that data, for
 example from an end-user backup or an archive service.
- - Fullnodes can validate an Object during relay without needing an existing copy of the  
+ - Fullnodes can validate an Object during relay without needing an existing copy of the
 data
  - Miners are incentivized to include Object state transition hashes in blocks
  - Nodes are incentivized to store and provide Object data to users
  - Overall storage in the network for Object data scales at a reduced rate of O(n/s) where `s`
 is the shard factor required by the network.
- - Blockchain size scales at an increased linear rate (estimated around O(<2n) when  
+ - Blockchain size scales at an increased linear rate (estimated around O(<2n) when
 allowing 1-2 Account state transitions per transaction) regardless of Object size
- - Increased utility of an easy-to-integrate & easy-to-use service feeds back into the value  
-of rewards paid to Masternodes to cover increased costs of hosting a larger Blockchain  
+ - Increased utility of an easy-to-integrate & easy-to-use service feeds back into the value
+of rewards paid to Masternodes to cover increased costs of hosting a larger Blockchain
 and the total Object Data-set.
 
 ### 2.4 Decentralized Access
-Evolution has been designed from the front-end-up,with the focus on providing an end-user  
-experience that’s easy to use, secure and decentralized, rather than starting from a basic need  
-to send funds between 2 addresses, to remove some of the main frictions to mass adoption and  
-to open the door to new, permissionless ways for developers to build digital cash based apps  
-and services using the most commonly used programming languages, data structures and  
+Evolution has been designed from the front-end-up,with the focus on providing an end-user
+experience that’s easy to use, secure and decentralized, rather than starting from a basic need
+to send funds between 2 addresses, to remove some of the main frictions to mass adoption and
+to open the door to new, permissionless ways for developers to build digital cash based apps
+and services using the most commonly used programming languages, data structures and
 protocols.
-One of the main problems with real-world usage of Cryptocurrencies is that the vast majority of  
-users do not actually deal directly with the Cryptocurrencies p2p network, they rely on 3rd  
-parties to provide intermediary services, to which the user is usually trusting for payment  
-verification and always dependant on the permission and availability of those services as well as  
-subject to censorship and monitoring, which undermines one of the main advantages to  
-cryptocurrencies in terms of not relying on an intermediary to send or verify funds. This is  
-because running your own fullnode is something most users choose not to do because most  
-users do not want the hassle and cost to run complex software from their desktop when they are  
-already using centralized services from the browser and mobile devices. A comparison would  
-be seeders and leechers in BitTorrent; only a small fraction of users seed, and of those, most  
-have financial incentives to do so. Of seeders, most of those are on desktop apps, with  
-browsers and mobile devices needing to go through proxies to access the torrent network.  
-What this results in is the cryptocurrency p2p network where end-users rarely access directly  
-and instead access via centralized businesses and mostly without SPV (Simplified Payment  
-Verification), especially on the web. This reduces the benefits such as permissionless access,  
-service availability and trustless operation to end-users when choosing between  
-cryptocurrencies and existing easy-to-use centralized payment services and reduces the  
+
+One of the main problems with real-world usage of Cryptocurrencies is that the vast majority of
+users do not actually deal directly with the Cryptocurrencies p2p network, they rely on 3rd
+parties to provide intermediary services, to which the user is usually trusting for payment
+verification and always dependant on the permission and availability of those services as well as
+subject to censorship and monitoring, which undermines one of the main advantages to
+cryptocurrencies in terms of not relying on an intermediary to send or verify funds. This is
+because running your own fullnode is something most users choose not to do because most
+users do not want the hassle and cost to run complex software from their desktop when they are
+already using centralized services from the browser and mobile devices. A comparison would
+be seeders and leechers in BitTorrent; only a small fraction of users seed, and of those, most
+have financial incentives to do so. Of seeders, most of those are on desktop apps, with
+browsers and mobile devices needing to go through proxies to access the torrent network.
+
+What this results in is the cryptocurrency p2p network where end-users rarely access directly
+and instead access via centralized businesses and mostly without SPV (Simplified Payment
+Verification), especially on the web. This reduces the benefits such as permissionless access,
+service availability and trustless operation to end-users when choosing between
+cryptocurrencies and existing easy-to-use centralized payment services and reduces the
 potential market size to which cryptocurrencies have fully-featured access to.
-What is needed is a way for end-users to access the P2P network directly in a read-only (i.e.  
-selfish, leaching, or non-contributing manner), using the kind of tools and protocols that they are  
-already using, and ensuring that that access is SPV based and with the ability to interoperate  
+
+What is needed is a way for end-users to access the P2P network directly in a read-only (i.e.
+selfish, leaching, or non-contributing manner), using the kind of tools and protocols that they are
+already using, and ensuring that that access is SPV based and with the ability to interoperate
 with any contributing node in the network, in other words a Client protocol.
 
-
 Cataloguing the major problems:
- - The communication protocol used in the Dash P2P network is a bespoke messaging  
-protocol on non-standard ports that isn’t understood or used by most developers, hard to  
-implement, inaccessible to the clients with the largest end-user-payments market share  
-(browsers) and even though it is available on mobile, as a non-standard protocol it is  
+
+ - The communication protocol used in the Dash P2P network is a bespoke messaging
+protocol on non-standard ports that isn’t understood or used by most developers, hard to
+implement, inaccessible to the clients with the largest end-user-payments market share
+(browsers) and even though it is available on mobile, as a non-standard protocol it is
 often blocked in firewall policies and easier to censor by authorities.
- - Even with a p2p connection, the protocol is extremely complex to implement correctly,  
-and developers need to understand cryptocurrency to a high degree to build applications  
-that interface with the P2P network and integrate into their existing frontend and server  
+ - Even with a p2p connection, the protocol is extremely complex to implement correctly,
+and developers need to understand cryptocurrency to a high degree to build applications
+that interface with the P2P network and integrate into their existing frontend and server
 systems securely.
- - For SPV to be available ‘on the wire’ and not through centralized proxies, it needs to be  
-available and tightly integrated into the new decentralized access method and also  
+ - For SPV to be available ‘on the wire’ and not through centralized proxies, it needs to be
+available and tightly integrated into the new decentralized access method and also
 extended to include verification of Accounts and their data objects via the blockchain.
 
 Elements to a solution:
-1. To remove the need for an intermediary between the p2p network and the majority of  
-end-users, we enable direct connection to the network by end-users using the most  
-common and understood protocol, HTTP/HTTPS. This protocol is the most used  
-protocol for applications by far and the standard communication protocol used by  
+
+1. To remove the need for an intermediary between the p2p network and the majority of
+end-users, we enable direct connection to the network by end-users using the most
+common and understood protocol, HTTP/HTTPS. This protocol is the most used
+protocol for applications by far and the standard communication protocol used by
 websites and mobile applications and is therefore relatively censorship resistant.
-2. To reduce the complexity of interfacing with the protocol, nodes will provide an API using  
-XMLHttpRequests over HTTPS that accept and return JSON forms of Accounts and their  
-Objects which can be easily integrated into existing websites and application using  
+2. To reduce the complexity of interfacing with the protocol, nodes will provide an API using 
+XMLHttpRequests over HTTPS that accept and return JSON forms of Accounts and their 
+Objects which can be easily integrated into existing websites and application using 
 common design patterns and user primitives.
 
 
 ## 3 Accounts
-Accounts are the foundation to user access in Evolution, enabling users to cryptographically  
-prove ownership of a pseudonymous identity that they create, and persist public and private  
+Accounts are the foundation to user access in Evolution, enabling users to cryptographically
+prove ownership of a pseudonymous identity that they create, and persist public and private
 data related to that identity on the blockchain.
-Accounts are data structures stored on the blockchain that represent the various new types of  
-Users that Evolution serves, such as end-users (e.g. Consumers) and Applications (e.g.  
-Businesses), who pay fees to the network in return for adding and updating their Account’s data,  
+
+Accounts are data structures stored on the blockchain that represent the various new types of
+Users that Evolution serves, such as end-users (e.g. Consumers) and Applications (e.g.
+Businesses), who pay fees to the network in return for adding and updating their Account’s data,
 essentially as subscribers to the network.
 
 ### 3.1 Account Subscriptions
-Users create Accounts by registering subscription data directly on the blockchain in the  
-metadata of specially constructed transactions called Subscription Transactions that also burn a  
-minimum amount of Dash via a provably unspendable null-data pubkey script in one of the  
+Users create Accounts by registering subscription data directly on the blockchain in the
+metadata of specially constructed transactions called Subscription Transactions that also burn a
+minimum amount of Dash via a provably unspendable null-data pubkey script in one of the
 transaction’s outputs.
-Subscription data for an account consists of a identified for the type (e.g. a User), a unique key  
-for that type (e.g. a username), and a public key that lets the user prove they are the owner of  
-the account by signing challenges, and maintain a “fee-balance” consisting of a tallied quantity  
-of Dash burned on the account that is spent to miners for including updates to the account state  
-in blocks. Note that the public key for the Account is purely for authentication and not to be  
+
+Subscription data for an account consists of a identified for the type (e.g. a User), a unique key
+for that type (e.g. a username), and a public key that lets the user prove they are the owner of
+the account by signing challenges, and maintain a “fee-balance” consisting of a tallied quantity
+of Dash burned on the account that is spent to miners for including updates to the account state
+in blocks. Note that the public key for the Account is purely for authentication and not to be
 used as a payment address.
-Account subscription data is stored within transaction metadata as the blockchain provides the  
-most security and durability in terms of maintaining a consensus on subscription data, and is  
-accessible and verifiable at an SPV level using existing tools. Also, as the amount of  
-subscription data each account needs to store in transactions during its life cycle is minimal, the  
-penalties of adding this data to the blockchain are minimal too with the amount of additional data  
+
+Account subscription data is stored within transaction metadata as the blockchain provides the
+most security and durability in terms of maintaining a consensus on subscription data, and is
+accessible and verifiable at an SPV level using existing tools. Also, as the amount of
+subscription data each account needs to store in transactions during its life cycle is minimal, the
+penalties of adding this data to the blockchain are minimal too with the amount of additional data
 stored in transactions scaling linearly to the number of user signups.
-Using null-data pubkey scripts in a transaction output to register Accounts also has the benefit  
-that funds can be burned at the same time that are provably unspendable and can then provide  
-a “Fee Balance” for the account (the use of which is to incentivize miners to include changes to  
-an Account’s state in blocks). However, rather than storing the metadata after an OP_RETURN  
-opcode, we introduce the new opcode OP_SUBTX that mirrors OP_RETURN but is dedicated  
-to Subscription Transactions. The reason is that OP_RETURN is already used generically by  
-3rd parties in the Dash ecosystem with an 80 byte max length and may also be pruned (as there  
-are no functions dependant on this data within the Dash protocol). Using a dedicated opcode  
-such as OP_SUBTX, the data is compartmentalized so that nodes can identify and validate  
-Subscription Transactions with specific length and validation rules and without danger of pruning  
 
-
-or invalid registration data being stored on the blockchain, making filtering and handling of the  
+Using null-data pubkey scripts in a transaction output to register Accounts also has the benefit
+that funds can be burned at the same time that are provably unspendable and can then provide
+a “Fee Balance” for the account (the use of which is to incentivize miners to include changes to
+an Account’s state in blocks). However, rather than storing the metadata after an OP_RETURN
+opcode, we introduce the new opcode OP_SUBTX that mirrors OP_RETURN but is dedicated
+to Subscription Transactions. The reason is that OP_RETURN is already used generically by
+3rd parties in the Dash ecosystem with an 80 byte max length and may also be pruned (as there
+are no functions dependant on this data within the Dash protocol). Using a dedicated opcode
+such as OP_SUBTX, the data is compartmentalized so that nodes can identify and validate
+Subscription Transactions with specific length and validation rules and without danger of pruning
+or invalid registration data being stored on the blockchain, making filtering and handling of the
 transactions more efficient and ensuring integrity of the Subscription Transaction dataset.
+
 #### 3.1.1 Registration
 The transaction metadata needed to create a new Account with sample data is as follows:
 
-Registering an Account with a Subscription Transaction
-Action  : An integer representing the type of Subscription Transaction, enumerating to the types  
+##### Registering an Account with a Subscription Transaction <image>
+
+**Action**  : An integer representing the type of Subscription Transaction, enumerating to the types
 “Register”, “Topup”, “ChangePubKey” and “Deactivate”.
-Type  : This is an integer representing the type of account as defined in a JSON protocol called  
-the Schema which governs all data-structures in Evolution and is described later. For now we  
-assume all accounts are a type “User”, the main account type and targeted at end-users. The  
+
+**Type**  : This is an integer representing the type of account as defined in a JSON protocol called
+the Schema which governs all data-structures in Evolution and is described later. For now we
+assume all accounts are a type “User”, the main account type and targeted at end-users. The
 account type cannot be changed by subsequent subscription transactions for this Account.
-AccKey  : A string of characters which must be unique within the total Account set on the  
-blockchain for the specified Account Type (similar to a primary key in a database). The AccKey  
+
+**AccKey**  : A string of characters which must be unique within the total Account set on the
+blockchain for the specified Account Type (similar to a primary key in a database). The AccKey
 cannot be changed by subsequent subscription transactions for this Account.
-PubKey  : The owner’s public key for the Account, enabling proof of ownership of the account for  
-the private key holder by verifying their signature against the specified PubKey. This should not  
+
+**PubKey**  : The owner’s public key for the Account, enabling proof of ownership of the account for
+the private key holder by verifying their signature against the specified PubKey. This should not
 be used to hold funds in a Dash address, and is purely for authentication purposes.
-Signature  : A signature of the hash of the preceding fields signed by the owner with the private  
+
+**Signature**  : A signature of the hash of the preceding fields signed by the owner with the private
 key for the specified PubKey
-Burn Amount  : This is the amount of Dash burned in the transaction output. It must be greater  
-than or equal to a minimum fee for registering the specified Account type (0.005 for a User  
-Account). The amount of Dash burned above the minimum fee is credited to a ‘fee balance’,  
+
+**Burn Amount**  : This is the amount of Dash burned in the transaction output. It must be greater
+than or equal to a minimum fee for registering the specified Account type (0.005 for a User
+Account). The amount of Dash burned above the minimum fee is credited to a ‘fee balance’,
 and is spent on updates to the account later.
 
 #### 3.1.2 Subscription Status
-To identify Alice’s account in Evolution, the AccKey (“Alice”) and the account type (e.g. “User”)  
-are both required in combination, similar to a dual-primary key in a database, alternatively, the  
+To identify Alice’s account in Evolution, the AccKey (“Alice”) and the account type (e.g. “User”)
+are both required in combination, similar to a dual-primary key in a database, alternatively, the
 hash of the initial registration transactions can be used.
 
-#### 3.1.3 Nodes can then validate the subscription status of an Account by querying the blockchain  
-for all subscription transactions with a given Type and AccKey combination, for example,  
-returning all subscription transactions of type ‘User’ and with the username ‘Alice’, and check  
-that the Account was registered and has not been closed.  
+3.1.3 Nodes can then validate the subscription status of an Account by querying the blockchain
+for all subscription transactions with a given Type and AccKey combination, for example,
+returning all subscription transactions of type ‘User’ and with the username ‘Alice’, and check
+that the Account was registered and has not been closed.
 
 #### 3.1.4 FeeBalance
-In the above registration example the current balance of the account is derived from the total  
-burned on the account (0.01 Dash), minus the minimum fee for signing up a user at 0.005 Dash  
-(plus any Account update fees which are described later) to tally the account’s balance at 0.005  
+In the above registration example the current balance of the account is derived from the total
+burned on the account (0.01 Dash), minus the minimum fee for signing up a user at 0.005 Dash
+(plus any Account update fees which are described later) to tally the account’s balance at 0.005
 Dash.
-Nodes tally this balance by summing the amounts credited in the initial registration transaction  
-and subsequent top-up transactions existing in the blockchain, and then deducting the sum of  
-debits from the account in the form of fees deducted in object state transitions for the subscriber  
+
+Nodes tally this balance by summing the amounts credited in the initial registration transaction
+and subsequent top-up transactions existing in the blockchain, and then deducting the sum of
+debits from the account in the form of fees deducted in object state transitions for the subscriber
 in the blockchain (described later).
-Note that the only funds under the control of the subscriber's public key are those available as  
-the account fee-balance, and those funds can only be spent by updating objects under the  
-control of that account. Subscribers cannot change data in other subscriber accounts (without  
-their private key) and cannot transfer fee-balances to another account, to minimize incentives to  
-hack someones account. Therefore, if a subscriber’s private key is compromised, the attacker  
-can only use the available fee-balance to that Account’s data, or to deactivate the Account.  
+
+Note that the only funds under the control of the subscriber's public key are those available as
+the account fee-balance, and those funds can only be spent by updating objects under the
+control of that account. Subscribers cannot change data in other subscriber accounts (without
+their private key) and cannot transfer fee-balances to another account, to minimize incentives to
+hack someones account. Therefore, if a subscriber’s private key is compromised, the attacker
+can only use the available fee-balance to that Account’s data, or to deactivate the Account.
 
 #### 3.1.5 Account TopUps
-Account owners can top-up the fee-balance by creating a “Topup” subscription transaction with  
-the registration transaction’s hash, and burning any additional amount of Dash, which is credited  
-to the subscriber’s account balance when tallying the current account subscription state. It does  
+Account owners can top-up the fee-balance by creating a “Topup” subscription transaction with
+the registration transaction’s hash, and burning any additional amount of Dash, which is credited
+to the subscriber’s account balance when tallying the current account subscription state. It does
 not need to be signed by the Account owner, i.e. anyone can topup an Account’s fee-balance
 
-Topping Up an Account’s Fee-Balance
+##### Topping Up an Account’s Fee-Balance <image>
 
 
 #### 3.1.6 Changing the public key
-The public key for an Account registration can be changed by submitting an additional  
-registration transaction with a “ResetKey” action, specifying the new public key and signing with  
+The public key for an Account registration can be changed by submitting an additional
+registration transaction with a “ResetKey” action, specifying the new public key and signing with
 the public key from the last registration transaction for that account.
 
-This enables e.g. a user to change their password. The latest public key in the blockchain for  
-this account is the proof of ownership, provided the registration transaction was valid and signed  
+<image>
+
+This enables e.g. a user to change their password. The latest public key in the blockchain for
+this account is the proof of ownership, provided the registration transaction was valid and signed
 for the pubkey from the previous registration transaction for the subscriber.
 
 #### 3.1.7 Closing an Account
-In the case that a subscriber's private key is compromised, and the attacker then changes the  
-public key, the subscriber can create a new subscription transaction using the “Close” method  
-and signing for a previous public key, effectively deactivating the Account and preventing any  
+In the case that a subscriber's private key is compromised, and the attacker then changes the
+public key, the subscriber can create a new subscription transaction using the “Close” method
+and signing for a previous public key, effectively deactivating the Account and preventing any
 updates to it’s data in future.
 
-To validate the deactivation, nodes will check back for a set amount of time (e.g. 6 months) and  
-allow deactivation on any public key within that period (and 3rd party apps could check further if  
+<image>
+
+To validate the deactivation, nodes will check back for a set amount of time (e.g. 6 months) and
+allow deactivation on any public key within that period (and 3rd party apps could check further if
 required).
 
-
-This enables users to prevent unauthorized access to their account, as accounts cannot be  
-re-opened. It also means an attacker with the user’s private key could deactivate their account  
-but this just prevents the rightful owner from updating any objects using the account because  
-the public key doesn’t hold funds, and the user can copy the account data and register a new  
+This enables users to prevent unauthorized access to their account, as accounts cannot be
+re-opened. It also means an attacker with the user’s private key could deactivate their account
+but this just prevents the rightful owner from updating any objects using the account because
+the public key doesn’t hold funds, and the user can copy the account data and register a new
 account.
 
 ### 3.2 Account State
-An Account’s State is a representation of the current set of data and metadata related to an  
+An Account’s State is a representation of the current set of data and metadata related to an
 Account subscription.
-When an Account is registered, it is in the ‘null-state’, until the Account owner creates data for  
+
+When an Account is registered, it is in the ‘null-state’, until the Account owner creates data for
 the account.
-Updates to the Account data require a valid signature of the hash of the Owner state properties  
-(which include a hash of the data) for the public key of the Account derived from the subscription  
+
+Updates to the Account data require a valid signature of the hash of the Owner state properties
+(which include a hash of the data) for the public key of the Account derived from the subscription
 transaction set.
-Meta state is created by miners who set the status of the account and the fee-balance, based on  
+
+Meta state is created by miners who set the status of the account and the fee-balance, based on
 the Account’s activity and the consensus rules, described later.
 
-Account State derived from Subscription Transactions
+##### Account State derived from Subscription Transactions <image>
 
 
 ### 3.3 Account Data
-Data for an Account is stored as a collection of data structures called   Objects   that Account  
+Data for an Account is stored as a collection of data structures called   Objects   that Account
 owners can create and update within State Transitions.
-Objects have a Header and a Data section that contain data fields called Properties. The  
-Header includes a Property containing the hash of the Data section Properties, so an individual  
-Data section can be matched to a header e.g. when stored in different locations, and the Header  
+
+Objects have a Header and a Data section that contain data fields called Properties. The
+Header includes a Property containing the hash of the Data section Properties, so an individual
+Data section can be matched to a header e.g. when stored in different locations, and the Header
 itself can be hashed to provide a single hash of all Properties in the Object.
 
-Object Authentication & Verification
-Account owners prove ownership of Objects by signing the header properties with their private  
-key, which includes a hash of all property data, which nodes can independently verify using the  
+##### Object Authentication & Verification <image>
+
+Account owners prove ownership of Objects by signing the header properties with their private
+key, which includes a hash of all property data, which nodes can independently verify using the
 blockchain.
 
 #### 3.3.1 Object Tree
-The Objects within an account are hashed in a Merkle Tree whose root resolves to the  
+The Objects within an account are hashed in a Merkle Tree whose root resolves to the
 DataHash property in the Header section of an Account State object.
-Because Account State Transitions are stored in blocks, clients can prove that an Object was  
-part of an Account State committed to a block by hashing the Object locally and checking a  
+
+Because Account State Transitions are stored in blocks, clients can prove that an Object was
+part of an Account State committed to a block by hashing the Object locally and checking a
 Merkle proof for the Object’s branch in the merkle tree.
 
-
-Account Data Objects hashed in Merkle Tree
+##### Account Data Objects hashed in Merkle Tree <image>
 
 ### 3.4 State Transitions
-A State Transition, or Transition, is defined by the change in state of an Account’s owner data  
+A State Transition, or Transition, is defined by the change in state of an Account’s owner data
 and metadata from an old state to a new state.   The full set of properties in a Transition are:
 
-Each new transition references the last transition agreed by network consensus with the  
+<image>
+
+Each new transition references the last transition agreed by network consensus with the
 PrevSTHash property, and PrevDataHash references the last DataHash.
 
-
-Certain state transitions can exist without an Owner State, called Delegate State Transitions,  
-where only the meta state is amended using network consensus, for example to ban the  
+Certain state transitions can exist without an Owner State, called Delegate State Transitions,
+where only the meta state is amended using network consensus, for example to ban the
 account with a sufficient consensus majority.
-Accounts exist purely as a sequence of State Transitions and their associated data, providing a  
-cryptographic proof of the sequence of transitions, the validity of each transition’s data via its  
-hash, and proof the data in each transition was created by the Account owner by verifying the  
+
+Accounts exist purely as a sequence of State Transitions and their associated data, providing a
+cryptographic proof of the sequence of transitions, the validity of each transition’s data via its
+hash, and proof the data in each transition was created by the Account owner by verifying the
 signature using the public key for their subscription.
 
+<image>
+
 ### 3.5 Data Transitions
-Each Account State Transition contains only a differential set of data Objects that were added or  
+Each Account State Transition contains only a differential set of data Objects that were added or
 changed in the transition, called a Data Transition.
-The root of the Merkle Tree of all Objects in the Account resulting from the transition is stored in  
+
+The root of the Merkle Tree of all Objects in the Account resulting from the transition is stored in
 the DataHash property in the Owner State.
 
+<image>
 
 ## 4 Schema
-The types of Objects that Accounts can store, rules as to how they should be validated and their  
-permitted relationships within an Account and to other Account’s Objects, are defined in a  
+The types of Objects that Accounts can store, rules as to how they should be validated and their
+permitted relationships within an Account and to other Account’s Objects, are defined in a
 JSON-specified protocol known as the Schema.
-The Schema is defined in a single reference JSON specification that nodes and clients can  
-interpret programmatically or manually through successive versions and JSON is the native  
-format for interoperation using Objects across all Dash nodes and clients, that is to say that  
-every Object owned by an Account in Evolution can be expressed and validated as a JSON  
-Object as defined in the JSON Schema and the relationships and constraints defined in the  
-Schema are used as reference whenever an Object needs to be validated, stored or acted  
+
+The Schema is defined in a single reference JSON specification that nodes and clients can
+interpret programmatically or manually through successive versions and JSON is the native
+format for interoperation using Objects across all Dash nodes and clients, that is to say that
+every Object owned by an Account in Evolution can be expressed and validated as a JSON
+Object as defined in the JSON Schema and the relationships and constraints defined in the
+Schema are used as reference whenever an Object needs to be validated, stored or acted
 upon.
-We use a programmatically interpretable Schema specification because it enables us to  
-decouple Object implementation from Object validation, relay and storage, for example, core  
-code can validate an object based on the Schema rules, whilst remaining agnostic to the  
-specific functionality required to handle that Object Type in higher tiers such as the  
-Decentralized API or client applications. This also enables us to modify the Schema and add  
-new Object types in future without having to re-engineer large amounts of code, and for  
-example have separate teams working on the Schema design (in JSON) and the various  
-implementations in nodes and clients. The Schema architecture can also be extended in future  
-to allow 3rd party apps to implement their own sub-schemas to integrate functionality  
+
+We use a programmatically interpretable Schema specification because it enables us to
+decouple Object implementation from Object validation, relay and storage, for example, core
+code can validate an object based on the Schema rules, whilst remaining agnostic to the
+specific functionality required to handle that Object Type in higher tiers such as the
+Decentralized API or client applications. This also enables us to modify the Schema and add
+new Object types in future without having to re-engineer large amounts of code, and for
+example have separate teams working on the Schema design (in JSON) and the various
+implementations in nodes and clients. The Schema architecture can also be extended in future
+to allow 3rd party apps to implement their own sub-schemas to integrate functionality
 customized for their own requirements.
+
 Some additional benefits of using a ‘dynamic’ design-time protocol such as the Schema for  
 Objects are:
-●
-●
-●
-●
-●
-●
-Core/DAPI are object agnostic
-End-to-end reference spec for object validation
-Decouple business layer from data access layer
-OO enables code reuse
-Enables polymorphic code use in Clients e.g. reuse functionality that processes base  
+
+ - Core/DAPI are object agnostic
+ - End-to-end reference spec for object validation
+ - Decouple business layer from data access layer
+ - OO enables code reuse
+ - Enables polymorphic code use in Clients e.g. reuse functionality that processes base  
 class properties and constraints on derived classes
-Enables programmatic code generation for e.g. Client SDK object sets
-The Schema has the properties of both an entity relationship (ER) model and a unified  
-modelling language (UML) model used in Object Oriented Programming (OOP). This means  
-that Dash Evolution functions somewhat like an decentralized object-oriented relational  
-database application for end-users and 3rd party applications, where the table rows are instead  
+ - Enables programmatic code generation for e.g. Client SDK object sets
+
+The Schema has the properties of both an entity relationship (ER) model and a unified
+modelling language (UML) model used in Object Oriented Programming (OOP). This means
+that Dash Evolution functions somewhat like an decentralized object-oriented relational
+database application for end-users and 3rd party applications, where the table rows are instead
 Objects defined by the Schema’s JSON definition at design-time.
-In this section we present the basic Schema elements, followed by walkthrough of an example  
-implementation of a real-world use-case using the Schema to signup a user and friend another  
 
-
-user and pay between themselves using automatically generated Dash addresses that aren’t  
+In this section we present the basic Schema elements, followed by walkthrough of an example
+implementation of a real-world use-case using the Schema to signup a user and friend another
+user and pay between themselves using automatically generated Dash addresses that aren’t
 linked to their Account data.
+
 ### 4.1 Interoperability
-The native format for Objects in the Schema and the Schema definition itself is JSON 1 enabling  
-Objects must be interoperable universally throughout the Dash network and ecosystem from  
-fullnodes to clients, for example:  
-●
-●
-●
-●
-●
-●
-DashCore can relay Objects with other fullnodes using P2P messages
-DashCore can store and retrieve Objects using local storage
-DAPI can read and write Objects to and from DashCore using RPC and ZMQ
-DAPI can handle HTTPS XHR requests and responses containing native JSON Objects
-Client Wallets can request and receive Objects from DAPI and can backup a user’s  
+The native format for Objects in the Schema and the Schema definition itself is JSON 1 enabling
+Objects must be interoperable universally throughout the Dash network and ecosystem from
+fullnodes to clients, for example:
+
+ - DashCore can relay Objects with other fullnodes using P2P messages
+ - DashCore can store and retrieve Objects using local storage
+ - DAPI can read and write Objects to and from DashCore using RPC and ZMQ
+ - DAPI can handle HTTPS XHR requests and responses containing native JSON Objects
+ - Client Wallets can request and receive Objects from DAPI and can backup a user’s
 Object Set in native JSON format
-Client Applications can request and receive Objects in native JSON format
+ - Client Applications can request and receive Objects in native JSON format
 
 ### 4.2 Schema Base
-To prevent duplication of properties in the Schema definition we can implement a form of OOP  
-inheritance by specifying a base class from which Objects inheriting the base will gain its  
-properties. Inheritance is also useful in Clients to avoid duplication of code and enable  
-integration using polymorphic code that handles Dash Objects from e.g. a wallet GUI through to  
+To prevent duplication of properties in the Schema definition we can implement a form of OOP
+inheritance by specifying a base class from which Objects inheriting the base will gain its
+properties. Inheritance is also useful in Clients to avoid duplication of code and enable
+integration using polymorphic code that handles Dash Objects from e.g. a wallet GUI through to
 a merchant backend system.
-The Schema Base is the definition of abstract Object rules and properties that are hardwired  
-into the core protocol in terms of how derived Objects are created, updated, validated and  
+
+The Schema Base is the definition of abstract Object rules and properties that are hardwired
+into the core protocol in terms of how derived Objects are created, updated, validated and
 stored by nodes.
-On top of the Schema Base is the Schema Model, which defines Objects derived from  
-SchemaBase classes and that are specific to an instance of the blockchain (i.e. the forthcoming  
+
+On top of the Schema Base is the Schema Model, which defines Objects derived from
+SchemaBase classes and that are specific to an instance of the blockchain (i.e. the forthcoming
 Dash Evolution).
-All Objects in the Schema inherit from the ObjectBase, and we refer to Object definitions in the  
-Schema as Object Classes. Actual Object data which instantiate the class definitions are  
+
+All Objects in the Schema inherit from the ObjectBase, and we refer to Object definitions in the
+Schema as Object Classes. Actual Object data which instantiate the class definitions are
 referred to as Object Instances, or just Objects.
-1
- R
- FC 7159 - The JavaScript Object Notation (JSON) Data ... - IETF Tools
 
+<sup>1</sup> [RFC 7159 - The JavaScript Object Notation (JSON) Data ... - IETF Tools](https://tools.ietf.org/html/rfc7159)
 
-//
- A
- bstract
- B
- ase-Object
- C
- lass
- d
- efinition
-ObjectBase
-: {
+```
+// Abstract Base-Object Class definition
+ObjectBase: {
 
+   // Rules
+   CreateFee: 1 ,   // # of credits to create this Object type
+   UpdateFee: 1 ,   // # of credits to update this Object type
+   MaxSize: 1000,   // max data size in bytes
+   MaxCount: 1,     // 1 = Unique instance, > 1 = multi-instance, nonce based
+   PruneDepth : 0,  // block depth when data transitions can be pruned
+   RateTrigger: 0,  // Object can rate related accounts?
 
-
-   /
- /
- R
- ules
-   C
- reateFee:
- 1
- ,
-   /
- /
- #
- o
- f
- c
- redits
- t
- o
- c
- reate
- t
- his
- O
- bject
- t
- ype
-   U
- pdateFee:
- 1
- ,
-   /
- /
- #
- o
- f
- c
- redits
- t
- o
- u
- pdate
- t
- his
- O
- bject
- t
- ype
-   M
- axSize:
- 1
- 000
-,   /
- /
- m
- ax
- d
- ata
- s
- ize
- i
- n
- b
- ytes
-   M
- axCount
- :
- 1
- ,
-   /
- /
- 1
- =
- U
- nique
- i
- nstance,
- >
- 1
- =
- m
- ulti-instance,
- n
- once
- b
- ased
-   P
- runeDepth
- :
- 0
- ,
- /
- /
- b
- lock
- d
- epth
- w
- hen
- d
- ata
- t
- ransitions
- c
- an
- b
- e
- p
- runed
-   R
- ateTrigger:
- 0
- ,
- /
- /
- O
- bject
- c
- an
- r
- ate
- r
- elated
- a
- ccounts?
-
-   /
- /
- P
- roperties
-   H
- eader:
- {
-
-     R
- egTX:
-     {
- /
- *
- r
- ules
- *
- /
- }
- ,
-   /
- /
- H
- ash
- o
- f
- t
- he
- r
- egistration
- t
- x
-     A
- ccNonce:
-   {
- /
- *
- r
- ules
- *
- /
- }
- ,
-   /
- /
- S
- tate
- t
- ransition
- n
- once
-     O
- bjNonce:
-   {
- /
- *
- r
- ules
- *
- /
- }
- ,
-   /
- /
- R
- evision
- o
- f
- t
- his
- O
- bject,
- p
- revents
- r
- eplay
-     T
- reeIDX:
-   {
- /
- *
- r
- ules
- *
- /
- }
- ,
-   /
- /
- I
- ndex
- i
- n
- t
- he
- O
- bject
- M
- erkle
- t
- ree
-     D
- ataHash:
-   {
- /
- *
- r
- ules
- *
- /
- }
- ,
-   /
- /
- H
- as
- o
- f
- t
- he
- D
- ata
- p
- roperties
-     R
- elations:
- {
- /
- *
- r
- ules
- *
- /
- }
- ,
-   /
- /
- F
- oreign
- O
- bject
- c
- onstraints
-     S
- ig:
-     {
- /
- *
- r
- ules
- *
- /
- }
-     /
- /
- O
- wner
- s
- ig
- o
- f
- t
- he
- h
- eader
- h
- ash
+   // Properties
+   Header: {
+     RegTX:      { / * rules */ },   // Hash of the registration tx
+     AccNonce:   { / * rules */ },   // State transition nonce
+     ObjNonce:   { / * rules */ },   // Revision of this Object, prevents replay
+     TreeIDX:    { / * rules */ },   // Index in the Object Merkle tree
+     DataHash:   { / * rules */ },   // Has of the Data properties
+     Relations:  { / * rules */ },   // Foreign Object constraints
+     Sig:        { / * r ules */ }   // Owner sig of the header hash
+   },
+   Data: {
+     Blobs: [ ]   / / Properties encrypted for related Account owners
    }
- ,
-   D
- ata
- :
- {
-
-     B
- lobs:
- [
- ]
-   /
- /
- P
- roperties
- e
- ncrypted
- f
- or
- r
- elated
- A
- ccount
- o
- wners
-   }
-
 },
-
+```
 
 From the JSON:
-●
-●
-●
-Rules are optional in derived Object types, and if not specified, the base default is used
-All header properties must be respecified in derived Object type definitions.
-The Data section contains a collection of encrypted Blobs that the Account Owner can  
-encrypt for themselves (blob[0]) or for foreign Accounts as specified in the Relations  
+
+ - Rules are optional in derived Object types, and if not specified, the base default is used
+ - All header properties must be respecified in derived Object type definitions.
+ - The Data section contains a collection of encrypted Blobs that the Account Owner can
+encrypt for themselves (blob[0]) or for foreign Accounts as specified in the Relations
 property (blob[1..n]) and is described later.
 
 #### 4.2.1 Root Objects
-Now we have defined the base for all Objects, the second important Object is the  
-RootBasewhich is always at index 0 in the Account State’s Merkle tree and is the class definition  
-for the type of Account which is the same ‘Type’ set in the Account’s registration transaction, for  
+Now we have defined the base for all Objects, the second important Object is the 
+RootBasewhich is always at index 0 in the Account State’s Merkle tree and is the class definition 
+for the type of Account which is the same ‘Type’ set in the Account’s registration transaction, for 
 example a User, App or Masternode Account.
 
+```
+// Abstract Account Root-Object Class definition
+RootBase: {
+   Inherits: ObjectBase,   // Inherits all rules and properties from the base type
 
-//
- A
- bstract
- A
- ccount
- R
- oot-Object
- C
- lass
- d
- efinition
-RootBase:
- {
+   BanParticipation: 0,  // Min. % of MNs needed in ban vote
+   BanMajority: 0,       // Min. % of MN majority to ban
 
-   I
- nherits:
- O
- bjectBase
-,   /
- /
- I
- nherits
- a
- ll
- r
- ules
- a
- nd
- p
- roperties
- f
- rom
- t
- he
- b
- ase
- t
- ype
-
-   B
- anParticipation:
- 0
- ,
-   /
- /
- M
- in.
- %
- o
- f
- M
- Ns
- n
- eeded
- i
- n
- b
- an
- v
- ote
-   B
- anMajority:
- 0
- ,
-       /
- /
- M
- in.
- %
- o
- f
- M
- N
- m
- ajority
- t
- o
- b
- an
-
-   /
- /
- M
- eta
- S
- tate
- f
- rom
- t
- he
- l
- ast
- s
- tate
- t
- ransition
-   S
- tate:
- {
-
-     R
- ating:
- 0
- ,
-
-     B
- alance:
- 0
- ,
-
-     S
- tatus:
- 0
-
+   // Meta State from the last state transition
+   State: {
+     Rating: 0,
+     Balance: 0,
+     Status: 0
    }
-
 }
+```
+
 #### 4.2.2 Leaf Objects
 Leaf Objects are non-root Objects, i.e. with an index > 0 in the Object Merkle tree
-//
- A
- bstract
- A
- ccount
- L
- eaf
- O
- bject
- C
- lass
- d
- efinition
-LeafBase
- :
- {
 
-   R
- ootObject:
- {
- }
- /
- /
- U
- sed
- i
- n
- C
- lients
- t
- o
- a
- ccess
- t
- he
- p
- arent
- A
- ccount
- f
- or
- a
- n
- O
- bject
+```
+// Abstract Account Leaf Object Class definition
+LeafBase: {
+   RootObject: { } // Used in Clients to access the parent Account for an Object
 }
+```
 
 For now, we leave the LeafBase empty, apart from a RootObject reference that is used in
 Clients.
 
 ### 4.3 Schema Model
-The Schema Model contains Object type definitions derived from the SchemaBase Objects,  
-such as base classes for User, App and Masternode account types. This enables Nodes to  
-remain agnostic to Objects defined in the Schema Model, processing them based on the rules in  
-the current Schema Base, with most of the functionality provided between Clients tightly coupled  
-to the current Model protocol number. This also enables a lot of flexibility, because  
-improvements can be made to the Schema model such as expanding Object types or adding  
+The Schema Model contains Object type definitions derived from the SchemaBase Objects,
+such as base classes for User, App and Masternode account types. This enables Nodes to
+remain agnostic to Objects defined in the Schema Model, processing them based on the rules in
+the current Schema Base, with most of the functionality provided between Clients tightly coupled
+to the current Model protocol number. This also enables a lot of flexibility, because
+improvements can be made to the Schema model such as expanding Object types or adding
 new user interactions, without having to re-engineer the core system.
-The full Schema Model for Dash Evolution will be detailed later, but for now we can specify the  
-most fundamental Account type which is a Root Object that can represent a User, ownership of  
-which will enable the user to login, store & retrieve data, and connect and communicate with  
-other users in the system, with all User data persisted on fullnodes, except for the Account  
+
+The full Schema Model for Dash Evolution will be detailed later, but for now we can specify the
+most fundamental Account type which is a Root Object that can represent a User, ownership of
+which will enable the user to login, store & retrieve data, and connect and communicate with
+other users in the system, with all User data persisted on fullnodes, except for the Account
 owner’s private keys.
-Note that the User Object Type is one of the 3 Root Object types In the DashPay schema in  
+
+Note that the User Object Type is one of the 3 Root Object types In the DashPay schema in
 Evolution V1,the other two being App and Masternode Objects which are described later.
 
+```
+// User Root Account-Object Class definition
+User: {
+   Inherits: RootBase, // Derive from the base class for Account root objects
+   Header : {
+     // Inherited properties
+   },
+   Data: {
+     Summary: { /* rules */ },
+     ImgURL:  { /* rules */ },
 
-Dash Evolution
-
-22
-
-//
- U
- ser
- R
- oot
- A
- ccount-Object
- C
- lass
- d
- efinition
-User
-: {
-
-   I
- nherits
-: R
- ootBase,
- /
- /
- D
- erive
- f
- rom
- t
- he
- b
- ase
- c
- lass
- f
- or
- A
- ccount
- r
- oot
- o
- bjects
-   H
- eader
- :
- {
-
-     /
- /
- I
- nherited
- p
- roperties
-   }
- ,
-   D
- ata
- :
- {
-
-     S
- ummary
-: {
- /
- *
- r
- ules
- *
- /
- }
- ,
-     I
- mgURL
-:   {
- /
- *
- r
- ules
- *
- /
- }
- ,
-
-     B
- lobs
-: {
-
-       S
- elf
-: {
-
-           H
- DRootPubkey
-: T
- ypes.XPubKey,
-   /
- /
- P
- ublic
- H
- D
- s
- eed
- f
- or
- t
- he
- A
- ccount's
-wallet
-           B
- lockedUsers
-: T
- ypes.TXHash[]
-   /
- /
- L
- ist
- o
- f
- r
- eg
- t
- xs
- f
- or
- d
- eclined
-requests
+     Blobs: {
+       Self: {
+           HDRootPubkey: Types.XPubKey,   // Public HD seed for the Account's wallet
+           BlockedUsers: Types.TXHash[]   // List of reg txs for declined requests
        }
-
      }
-
    }
-
 }
+```
+
 ### 4.4 Payment Objects
-The Schema also provides a 3rd type,   Payment Objects  , which are read-only abstractions of  
-the existing Tier-1 (payments level) blockchain data structures derived from confirmed  
-transactions and made available as Evolution Objects, to enable applications to access these  
+The Schema also provides a 3rd type,   Payment Objects  , which are read-only abstractions of
+the existing Tier-1 (payments level) blockchain data structures derived from confirmed
+transactions and made available as Evolution Objects, to enable applications to access these
 structures easily if required and for Objects to reference them internally:
 
-●
-●
-●
-●
-Block, Tx and Address are the main object types used in the current payment level of  
+<image>
+
+ - Block, Tx and Address are the main object types used in the current payment level of
 the current Dash protocol
-Subscription Transactions are null-data transactions with subscription metadata  
+ - Subscription Transactions are null-data transactions with subscription metadata
 indicating the ownership, status and fee-balance of an Account
-Collateral are UTXO with specific metadata used in Evolution, and are used for  
+ - Collateral are UTXO with specific metadata used in Evolution, and are used for
 Masternode Shares.
-SuperBlocks (SBs) that pay winning Proposal Objects are created deterministically by  
+ - SuperBlocks (SBs) that pay winning Proposal Objects are created deterministically by
 Miners in Evolution, with payments added as outputs in the SB’s coinbase transaction.
 
-
 ### 4.5 State Sequences
-Now that have defined the abstract types in the Schema Base and introduced the Schema  
-Model, we can derive some example types of Object in the model to illustrate how Object  
-functions are implemented and the sequence of states that multi-party interactions observe  
-using a basic test use-case of user friending for private C2C (consumer-to-consumer)  
+Now that have defined the abstract types in the Schema Base and introduced the Schema
+Model, we can derive some example types of Object in the model to illustrate how Object
+functions are implemented and the sequence of states that multi-party interactions observe
+using a basic test use-case of user friending for private C2C (consumer-to-consumer)
 payments.
 
 #### 4.5.1 Requirements
-As a simple test case, we want a user to be able to register an account, request to ‘add’ another  
-user as a contact, at which point the other user is able to accept or decline that request. If  
-accepted, both users will be able to see the other user in a list of their contacts. If the request is  
-declined, the requesting user doesn’t have the option to request again, and the requested user  
-doesn’t see the request anymore.  
-For our test case, we know we have to store the data using Account Objects, but we don’t care  
-how or where the objects is stored, which is described in the next section. Instead we care  
-about what data is stored and what is the sequence of states in both user’s Account Objects at  
-each state throughout the ‘friending’ process. Therefore in this case we assume all Objects can  
-be read and written to the network using the rules defined thus far, and as a trustless virtual  
+As a simple test case, we want a user to be able to register an account, request to ‘add’ another
+user as a contact, at which point the other user is able to accept or decline that request. If
+accepted, both users will be able to see the other user in a list of their contacts. If the request is
+declined, the requesting user doesn’t have the option to request again, and the requested user
+doesn’t see the request anymore.
+
+For our test case, we know we have to store the data using Account Objects, but we don’t care
+how or where the objects is stored, which is described in the next section. Instead we care
+about what data is stored and what is the sequence of states in both user’s Account Objects at
+each state throughout the ‘friending’ process. Therefore in this case we assume all Objects can
+be read and written to the network using the rules defined thus far, and as a trustless virtual
 decentralized database with all data secured by blockchain consensus.
 
 #### 4.5.2 Centralized Solution
-In a centralized, trusted relational database with users connecting through a server, this would  
+In a centralized, trusted relational database with users connecting through a server, this would
 be very common requirements that are simple to implement in a database, for example:
 
-Users (e.g. Alice and Bob) can both signup with their UserKey via the server, which creates both  
-rows in the User table. If user Alice wants to request a contact with Bob, she instructs the  
-server to create a new row in the UserContact table, with her key in the RequesterKey column,  
-and Bob’s key in the RequestedKey column, and with the Response column’s value set to 0,  
+<image>
+
+Users (e.g. Alice and Bob) can both signup with their UserKey via the server, which creates both
+rows in the User table. If user Alice wants to request a contact with Bob, she instructs the
+server to create a new row in the UserContact table, with her key in the RequesterKey column,
+and Bob’s key in the RequestedKey column, and with the Response column’s value set to 0,
 signifying no response.
-Bob can then be alerted of the request, by scanning the UserContact table for any request to  
-himself without a response, and then set the response to either 1 for “no” or 2 for “yes”. If “no”,  
-the server can filter out the request the next time Bob accesses it, and can prevent Alice from  
-resending a request to Bob. If “yes”, the server can return the User details to each other as an  
+
+Bob can then be alerted of the request, by scanning the UserContact table for any request to
+himself without a response, and then set the response to either 1 for “no” or 2 for “yes”. If “no”,
+the server can filter out the request the next time Bob accesses it, and can prevent Alice from
+resending a request to Bob. If “yes”, the server can return the User details to each other as an
 approved contact.
-The validation is also taken care of by the database itself, by ensuring only valid data types can  
-be entered, preventing duplicate users or contact requests through the use of foreign key  
+
+The validation is also taken care of by the database itself, by ensuring only valid data types can
+be entered, preventing duplicate users or contact requests through the use of foreign key
 constraints on the primary keys of both tables
 
 #### 4.5.3 Decentralized Design
-To implement the use-case in a fully decentralized and trustless way using the Account, Object  
-and Schema concepts detailed above, we can use a similar approach to the centralized / trusted  
+To implement the use-case in a fully decentralized and trustless way using the Account, Object
+and Schema concepts detailed above, we can use a similar approach to the centralized / trusted
 database model, but with some limitations:
-●
-●
-There is no trusted server with the permission or access to update the data; Both Alice  
-and Bob can only update the data in their own Accounts after proving ownership by  
+
+ - There is no trusted server with the permission or access to update the data; Both Alice
+and Bob can only update the data in their own Accounts after proving ownership by
 signing for their Account’s public key.
-Data isn’t stored in single tables, it’s stored in Objects within the user’s accounts.  
-Therefore both users need to be able to query Objects from all users that are referenced  
+ - Data isn’t stored in single tables, it’s stored in Objects within the user’s accounts.
+Therefore both users need to be able to query Objects from all users that are referenced
 to them.
-The solution to this lies in enabling Account owners (who can only change their own data) to  
-reference data Objects to foreign accounts (such as a prospective or connected contact) within  
-their own Object data that the foreign account can then detect, and respond with data in their  
+
+The solution to this lies in enabling Account owners (who can only change their own data) to
+reference data Objects to foreign accounts (such as a prospective or connected contact) within
+their own Object data that the foreign account can then detect, and respond with data in their
 own Object set related to the original user.
 
 
 #### 4.5.4 UserContact Object
-The first step to a decentralized solution is to create a UserContact Object that can represent a  
+The first step to a decentralized solution is to create a UserContact Object that can represent a
 user Account’s requested or confirmed relationship to another user’s account.
-//
- U
- ser
- A
- ccount's
- C
- ontact
- R
- equest
- /
- R
- esponse
- t
- o
- a
- nother
- U
- ser
- A
- ccount
-UserContact:
- {
 
-   I
- nherits:
- L
- eafBase
-,
-   M
- axCount
- :
- 1
- ,
-
-//
- U
- sers
- c
- an
- h
- ave
- o
- nly
- 1
- C
- ontactObject
- p
- er
- c
- ontact
-   R
- ateTrigger:
- 1
- ,
-     /
- /
- T
- his
- O
- bject
- c
- an
- c
- ontain
- r
- atings
- f
- or
- r
- elated
- A
- ccounts
-   H
- eader:
- {
-
-     R
- elations:
- {
-
-       C
- ontact:
- {
-
-           F
- oreignKey:
- U
- ser.AccKey,
-
-//
- K
- ey
- m
- ust
- m
- ap
- t
- o
- a
- v
- alid
- U
- ser
- A
- ccount
- k
- ey
-           R
- ating:
- T
- ypes.Byte
-     /
- /
- L
- eave
- a
- r
- ating
- f
- or
- t
- he
- C
- ontact
+```
+// User Account's Contact Request / Response to another User Account
+UserContact: {
+   Inherits: LeafBase,
+   MaxCount : 1,        // Users can have only 1 ContactObject per contact
+   RateTrigger: 1,      // This Object can contain ratings for related Accounts
+   Header: {
+     Relations: {
+       Contact: {
+           ForeignKey: User.AccKey, // Key must map to a valid User Account key
+           Rating: Types.Byte       // Leave a rating for the Contact
      }
-
-   }
- ,
-   D
- ata:
- {
-
-     /
- /
- P
- roperties
- e
- ncrypted
- f
- or
- r
- elated
- A
- ccount
- o
- wners
-     B
- lobs:
- {
-
-       S
- elf:
- {
- }
- ,
-       C
- ontactKey:
- {
-
-           H
- DPubSeed:
- T
- ypes.XPubKey
- /
- /
- E
- xtended
- p
- ublic
- k
- ey
- t
- he
- f
- oreign
- A
- ccount  
-                           /
- /
- t
- o
- d
- erive
- p
- ayment
- a
- ddresses
- f
- or
- t
- his
- u
- ser
+   },
+   Data: {
+     // Properties encrypted for related Account owners
+     Blobs: {
+       Self: { } ,
+       ContactKey: {
+           HDPubSeed: Types.XPubKey // Extended public key the foreign Account  
+                                    // to derive payment addresses for this user
        }
-
      }
-
    }
-
 }
-
+```
 
 #### 4.5.5 Static Structure
-Next, we can illustrate the static structure view of the JSON, showing the inheritance between  
+Next, we can illustrate the static structure view of the JSON, showing the inheritance between
 the Object classes we have defined so far in the Schema Base & Model.
 
-Example Schema: Static Structure
-Note that nodes or clients are not required to implement inheritance to satisfy consensus rules,  
-it is essentially an aspect to the Schema design that can be leveraged to reduce duplication and  
+##### Example Schema: Static Structure <image>
+
+Note that nodes or clients are not required to implement inheritance to satisfy consensus rules,
+it is essentially an aspect to the Schema design that can be leveraged to reduce duplication and
 complexity of code implementing the Schema if desired.
 
 #### 4.5.6 Referential Integrity
-Finally, we can illustrate the referential relationships between the Objects defined so far from the  
-JSON, which  is key to maintaining a global Object set that is correct that does not have  
-duplication or invalid data that would break Client applications, along with other benefits such  
+Finally, we can illustrate the referential relationships between the Objects defined so far from the
+JSON, which  is key to maintaining a global Object set that is correct that does not have
+duplication or invalid data that would break Client applications, along with other benefits such
 as:
-●
-●
-●
-●
-●
-●
-Enables validation of Object relations, to ensure integrity of the consensus Object Set
-Prevents duplicate objects instances or misuse of the Schema, e.g., inserting custom  
+
+ - Enables validation of Object relations, to ensure integrity of the consensus Object Set
+ - Prevents duplicate objects instances or misuse of the Schema, e.g., inserting custom
 data
-Enables complex queries to be run on objects that can be aggregated and correlated
-Enables extraction of the Object Set to a relational database for integration, analysing or  
+ - Enables complex queries to be run on objects that can be aggregated and correlated
+ - Enables extraction of the Object Set to a relational database for integration, analysing or
 warehousing scenarios
-Enables optimizations in retrieval through optimization of indexing strategies
-Enables optimizations in storage footprint by indexing Object relations
+ - Enables optimizations in retrieval through optimization of indexing strategies
+ - Enables optimizations in storage footprint by indexing Object relations
 
-Example Schema: Entity Relationships
-In the diagram, the ContactKey must relate to a valid User Account, meaning the network will  
-reject new Objects with the key of a User Account that doesn’t exist or exists and is closed (note  
+##### Example Schema: Entity Relationships <image>
+
+In the diagram, the ContactKey must relate to a valid User Account, meaning the network will
+reject new Objects with the key of a User Account that doesn’t exist or exists and is closed (note
 that Accounts cannot update relations once created).
-The foreign key relation with BlockedUsers to a valid User Account is implied, meaning it cannot  
-be validated using a network consensus, because the key is within an encrypted blob only the  
-User can decrypt, meaning relational integrity is reliant on correct Client implementations.  
-Interestingly, as Blob contents can never be validated using a network consensus, Client  
-applications could implement their own custom functionality for state-sequence base Account  
 
-
-interoperation within the Objects and relations defined in the public model, using encrypted  
+The foreign key relation with BlockedUsers to a valid User Account is implied, meaning it cannot
+be validated using a network consensus, because the key is within an encrypted blob only the
+User can decrypt, meaning relational integrity is reliant on correct Client implementations.
+Interestingly, as Blob contents can never be validated using a network consensus, Client
+applications could implement their own custom functionality for state-sequence base Account
+interoperation within the Objects and relations defined in the public model, using encrypted
 Blobs as the storage unit containing custom properties, although size of Blob’s can be limited.
 
 #### 4.5.7 State Sequence
-With the Objects and relations defined, we can explain the key concept in understanding how  
-Evolution implements database-like functionality for end-users but in a decentralized and  
+With the Objects and relations defined, we can explain the key concept in understanding how
+Evolution implements database-like functionality for end-users but in a decentralized and
 trustless way, which we call a State Sequence.
-The State Sequence enables sets of Accounts who want to interact to communicate information  
-by only changing their own Object data, with states transitioning in the kind of sequences found  
+
+The State Sequence enables sets of Accounts who want to interact to communicate information
+by only changing their own Object data, with states transitioning in the kind of sequences found
 in a centralized database application, but with users only changing their own data.
-The design pattern is essentially a semaphore, where users change their own state referencing  
+
+The design pattern is essentially a semaphore, where users change their own state referencing
 a foreign account who is observing any changes in account objects related to their account.
-For the user-friending case we are describing, we introduce a diagrammatical format to  
-represent the changes in interrelated account state transitions through a Schema defined state  
+
+For the user-friending case we are describing, we introduce a diagrammatical format to
+represent the changes in interrelated account state transitions through a Schema defined state
 sequence, called a State-Sequence diagram, below.
-Each row represents a state in the sequence, showing only new or updated Objects in each  
+
+Each row represents a state in the sequence, showing only new or updated Objects in each
 account being sequenced.
-The first column, Named State, represents a predefined state (in the Schema) that represents  
-some meaningful state in real-world use cases, that can be determined by nodes and clients  
+
+The first column, Named State, represents a predefined state (in the Schema) that represents
+some meaningful state in real-world use cases, that can be determined by nodes and clients
 based on the state of an Account’s objects.
 
-State Sequence: Friending Process (Simple Example)
+##### State Sequence: Friending Process (Simple Example) <image>
 
 From the diagram:
+
 1. Signed Up:   Both Alice & Bob have created Accounts of type User with a subscription
 transaction and their name in the AccKey.
 2. Contact Requested: Alice creates a UserContact Object in the system, inserting Bob’s
@@ -1605,7 +901,6 @@ needing to re-exchange addresses (not shown in diagram) and as the data is encry
 by each user for the other user, the transactions are not linked to the user’s Account
 data, unless the private keys for either user’s Account PubKey are compromised at
 some point the future.
-
 
 ## 5 Consensus
 Evolution adds consensus rules to the Dash protocol governing, generally:
