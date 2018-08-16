@@ -42,7 +42,7 @@ the payments layer through the HTTPS API.
 1. [Introduction](#1-introduction)
 2. [Design Rationale](#2-design-rationale)
     1. [Evolution Goals](#21-evolution-goals)
-    2. [Accounts & Objects](#22-accounts-objects)
+    2. [Accounts & Objects](#22-accounts--objects)
     3. [Consensus](#23-consensus)
     4. [Decentralized Access](#24-decentralized-access)
 3. [Accounts](#3-accounts)
