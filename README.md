@@ -303,9 +303,9 @@ end-users, we enable direct connection to the network by end-users using the mos
 common and understood protocol, HTTP/HTTPS. This protocol is the most used
 protocol for applications by far and the standard communication protocol used by
 websites and mobile applications and is therefore relatively censorship resistant.
-2. To reduce the complexity of interfacing with the protocol, nodes will provide an API using 
-XMLHttpRequests over HTTPS that accept and return JSON forms of Accounts and their 
-Objects which can be easily integrated into existing websites and application using 
+2. To reduce the complexity of interfacing with the protocol, nodes will provide an API using
+XMLHttpRequests over HTTPS that accept and return JSON forms of Accounts and their
+Objects which can be easily integrated into existing websites and application using
 common design patterns and user primitives.
 
 
@@ -635,9 +635,9 @@ encrypt for themselves (blob[0]) or for foreign Accounts as specified in the Rel
 property (blob[1..n]) and is described later.
 
 #### 4.2.1 Root Objects
-Now we have defined the base for all Objects, the second important Object is the 
-RootBasewhich is always at index 0 in the Account State’s Merkle tree and is the class definition 
-for the type of Account which is the same ‘Type’ set in the Account’s registration transaction, for 
+Now we have defined the base for all Objects, the second important Object is the
+RootBasewhich is always at index 0 in the Account State’s Merkle tree and is the class definition
+for the type of Account which is the same ‘Type’ set in the Account’s registration transaction, for
 example a User, App or Masternode Account.
 
 ```
@@ -905,7 +905,7 @@ some point the future.
 ## 5 Consensus
 Evolution adds consensus rules to the Dash protocol governing, generally:
 
-1. Consensus on the existence, status and ownership of Accounts, based on the sequence 
+1. Consensus on the existence, status and ownership of Accounts, based on the sequence
 and funding of an Account’s Subscription Transactions
 2. Consensus on the sequence and validity of Account State Transitions
 3. Consensus on the state of Objects within each State Transition
@@ -913,46 +913,46 @@ and funding of an Account’s Subscription Transactions
 5. Consensus on Object definition and validation rules defined in the Schema
 
 ### 5.1 Persistence Strategy
-Before detailing the consensus rules, we can identify essentially 3 new persistence 
-requirements based on the above design for Accounts, their state transitions and data, each 
+Before detailing the consensus rules, we can identify essentially 3 new persistence
+requirements based on the above design for Accounts, their state transitions and data, each
 with very different characteristics:
 
-1. **State Transitions** (Transitions between Account States) require a small, fixed amount of 
-data (~200 bytes) to be stored when account data or metadata is changed, regardless of 
-the amount of data changed. Accounts may batch updates into a single State Transition 
-and fullnodes must persist a full set of historical transitions across all Accounts to 
+1. **State Transitions** (Transitions between Account States) require a small, fixed amount of
+data (~200 bytes) to be stored when account data or metadata is changed, regardless of
+the amount of data changed. Accounts may batch updates into a single State Transition
+and fullnodes must persist a full set of historical transitions across all Accounts to
 validate new states to satisy the consensus rules.
-2. **Data Transitions** which are the differential Object datasets introduced by each 
-Account’s State Transition, consist of a hash of the data and the data itself. The Object 
-hashes and data are not needed for historical validation using consensus rules and can 
-be pruned (after a minimum time when some data is required for triggers, e.g. 1 month). 
-The data can be of variable size, sometimes large (e.g. 10Kb) depending on the amount 
+2. **Data Transitions** which are the differential Object datasets introduced by each
+Account’s State Transition, consist of a hash of the data and the data itself. The Object
+hashes and data are not needed for historical validation using consensus rules and can
+be pruned (after a minimum time when some data is required for triggers, e.g. 1 month).
+The data can be of variable size, sometimes large (e.g. 10Kb) depending on the amount
 of Objects comprising the State Transition data.
-3. **Active Dataset** is the dataset of Objects for an Account representing the current (or 
-‘Active’) set of the Account’s data is derived and made available by traversing previous 
-differential data transitions and updated whenever a new State Transition occurs that 
+3. **Active Dataset** is the dataset of Objects for an Account representing the current (or
+‘Active’) set of the Account’s data is derived and made available by traversing previous
+differential data transitions and updated whenever a new State Transition occurs that
 changes the Account’s data.
 
-Discounting Data Transitions which can be discarded after a short amount of time, we are faced 
-with 2 different types of persistence requirement; State Transitions must have full durability 
-across all nodes and cannot be pruned (except for Closed Accounts), which scales linearly to 
-the number of transactions (generally, and presuming transitions are being used as essentially 
-metadata facilitating transactions and not wastage). The Active Dataset, however, represents 
-just the upto-date state of user Account data, and therefore scales linearly to the number of 
+Discounting Data Transitions which can be discarded after a short amount of time, we are faced
+with 2 different types of persistence requirement; State Transitions must have full durability
+across all nodes and cannot be pruned (except for Closed Accounts), which scales linearly to
+the number of transactions (generally, and presuming transitions are being used as essentially
+metadata facilitating transactions and not wastage). The Active Dataset, however, represents
+just the upto-date state of user Account data, and therefore scales linearly to the number of
 users (generally speaking).
 
-For these reasons, we store State Transitions directly in blocks in a process analogous to 
-transactions, as full durability is required and the impact on block size is comparatively small , 
+For these reasons, we store State Transitions directly in blocks in a process analogous to
+transactions, as full durability is required and the impact on block size is comparatively small ,
 with state transitions being smaller than transactions and less frequently created.
 
-For the Account Data, i.e. the Active Dataset of Objects derived from state transition data and 
-pruned to a recent depth to represent only the current state of constantly changing user data, 
-blocks would be unsuitable due to their immutability, and therefore we need a more efficient 
-storage mechanism that essentially stores sets of Objects that are mutable based on the state 
+For the Account Data, i.e. the Active Dataset of Objects derived from state transition data and
+pruned to a recent depth to represent only the current state of constantly changing user data,
+blocks would be unsuitable due to their immutability, and therefore we need a more efficient
+storage mechanism that essentially stores sets of Objects that are mutable based on the state
 transitions in new blocks, which we call the Drive, or ‘DashDrive’ for end-users
 
 ### 5.2 State Transitions
-Transitions represent the sequence in changes to an Account’s state and metadata are added 
+Transitions represent the sequence in changes to an Account’s state and metadata are added
 to blocks by miners, and include a hash of the previous transition for the account.
 
 <image>
@@ -963,24 +963,24 @@ The properties in the transition are grouped into 3 independent data items as fo
 Owner state contains the properties controlled by the owner of the Account
  - The previous root hash of the Account Data, i.e. the source state
  - The current root hash of the Account Data, i.e. the destination state
- - The nonce is the transition number for the Account Data, and must be greater than the 
-nonce in the last transition in a block (except for Delegate State Transitions, described 
-below). 
+ - The nonce is the transition number for the Account Data, and must be greater than the
+nonce in the last transition in a block (except for Delegate State Transitions, described
+below).
 
 #### 5.2.2 Meta State
 Meta state contains metadata data is set by the Miner based on the transition consensus rules
- - A rating is set when other Accounts in the block have Objects with Ratings set on this 
-Account Object. The miner must calculate the correct rating by averaging the total score 
-value (sum of 0-10 rating scores) with the total score count which is specified in the 
+ - A rating is set when other Accounts in the block have Objects with Ratings set on this
+Account Object. The miner must calculate the correct rating by averaging the total score
+value (sum of 0-10 rating scores) with the total score count which is specified in the
 previous transition for this Account
- - A balance is set, equal to the balance at the last Transition in a block, plus the sum of 
+ - A balance is set, equal to the balance at the last Transition in a block, plus the sum of
 any topup subscription transactions, minus the fees for this update
- - The status is an integer determining if the account is active (e.g. not closed or banned), 
+ - The status is an integer determining if the account is active (e.g. not closed or banned),
 and more statuses can be added later
 
 #### 5.2.3 Quorum Sigs
- - Quorum Sigs are signatures for the Transition Data section only from the Masternodes 
-that submitted the transition, and are used for Proof-of-Service and can be pruned after 
+ - Quorum Sigs are signatures for the Transition Data section only from the Masternodes
+that submitted the transition, and are used for Proof-of-Service and can be pruned after
 the next MN reward cycle concludes (e.g. 2 weeks)
 
 #### 5.2.4 Transition Structure
@@ -1003,13 +1003,13 @@ the next MN reward cycle concludes (e.g. 2 weeks)
 | | QuorumSigs | char[] | 213-219 | Sig of Owner State hash by Quorum Masternodes. Excluded from State Transition hash and used only for Proof-of-Service.   Can be pruned after the next MN reward cycle. |
 
 #### 5.2.5 Incentives
-The incentive for Masternodes to form quorums to accept and propagate state transitions and 
-store their data is because Masternode rewards are dependant on achieving a minimum quota 
-of state transition in blocks based on the total Masternode activity within a fixed time. 
+The incentive for Masternodes to form quorums to accept and propagate state transitions and
+store their data is because Masternode rewards are dependant on achieving a minimum quota
+of state transition in blocks based on the total Masternode activity within a fixed time.
 
-The incentive for Miners to add state transitions to blocks is because they earn fees on each 
-transition added which are deducted from Account’s tallied balance and issued to the miner in 
-an additional coinbase output paying the sum of all fees on state transitions included in the 
+The incentive for Miners to add state transitions to blocks is because they earn fees on each
+transition added which are deducted from Account’s tallied balance and issued to the miner in
+an additional coinbase output paying the sum of all fees on state transitions included in the
 block.
 
 #### 5.2.6 Transition Verification
@@ -1018,53 +1018,53 @@ Each node verifies a transition as follows:
 Owner State
 
  - Check if the state transitions are well formed and use the correct syntax
- - Check the associated Account is valid and open status based on the associated 
+ - Check the associated Account is valid and open status based on the associated
 subscription transactions starting with the referenced registration tx hash
- - Check the previous data hash maps to last data hash confirmed in a block for this 
+ - Check the previous data hash maps to last data hash confirmed in a block for this
 Account
- - Check the AccNonce is greater than the AccNonce in the previous transition 
+ - Check the AccNonce is greater than the AccNonce in the previous transition
  - Check if the Account fee-balance can afford the commit cost (balance - fees > 0)
- - Add the fees (fee * numUpdates) to the coinbase (this is deducted from the user’s burn 
+ - Add the fees (fee * numUpdates) to the coinbase (this is deducted from the user’s burn
 tx by checking the blockchain)
  - Check the datasize is valid for the total data size of Objects committed
- - Verify Objects provided with the transition are well formed and use the correct syntax 
+ - Verify Objects provided with the transition are well formed and use the correct syntax
  - Validate Object properties using the rules in their associated Schema definitions
  - Verify that relations in Object headers map to valid Objects in the Active Set o
- - Verify the owner sig is the transition hash signed for the public key associated to the 
-pubkey in the account’s active subscription state (in the metadata of the most recent 
+ - Verify the owner sig is the transition hash signed for the public key associated to the
+pubkey in the account’s active subscription state (in the metadata of the most recent
 ‘register’ or ‘resetkey’ subscription transaction)
 
 Meta State
 
  - Check the previous transition hash is the last transition for this account
  - Check the rating data & fee-balance (described later)
- 
+
 Quorum Commit
 
- - Note, quorum sigs are pruned after the next Masternode reward cycle, so this verification 
+ - Note, quorum sigs are pruned after the next Masternode reward cycle, so this verification
 only applies to new blocks or blocks within the current reward cycle:
  - Determine the correct quorum for the Account at this height
- - Verify the quorum sig based on pubkeys of a minimum of 3 out of 5 Masternodes 
+ - Verify the quorum sig based on pubkeys of a minimum of 3 out of 5 Masternodes
 
 ### 5.3 Block Protocol
-Consensus rules on the validity and sequence of State Transitions added in blocks are 
+Consensus rules on the validity and sequence of State Transitions added in blocks are
 analogous to those of Transactions in the existing Dash protocol.
 
-Miners collect new Transitions into a block where they’re hashed into a Merkle Tree with only 
-the root included in the block’s header, enabling Clients to validate whether a specific Account 
-State exists in a block using a simplified verification process and enabling state transitions for 
+Miners collect new Transitions into a block where they’re hashed into a Merkle Tree with only
+the root included in the block’s header, enabling Clients to validate whether a specific Account
+State exists in a block using a simplified verification process and enabling state transitions for
 closed accounts to be pruned.
 
-The root hash of all Transitions in the block is hashed as part of the block header during 
-Proof-of-Work to gain consensus on the new state of all accounts that have transitioned since 
+The root hash of all Transitions in the block is hashed as part of the block header during
+Proof-of-Work to gain consensus on the new state of all accounts that have transitioned since
 the previous block.
 
 ##### State Transitions in a Block <image>
 
-The solution is scalable because each Account can have only one State Transition per block 
-regardless of the amount of data that changed, and thus we minimize the impact on block 
-growth to (around) 200 bytes per Account whose state has changed per block. If there were 1 
-million unique users updating their Account once per day, this would add roughly 347Kb per 
+The solution is scalable because each Account can have only one State Transition per block
+regardless of the amount of data that changed, and thus we minimize the impact on block
+growth to (around) 200 bytes per Account whose state has changed per block. If there were 1
+million unique users updating their Account once per day, this would add roughly 347Kb per
 block with Dash’s average of 576 blocks per day at the 2.5 minute target interval.
 
 #### 5.3.1 Block Header
@@ -1089,16 +1089,16 @@ Block headers for Evolution blocks are defined as:
 Additional consensus rules for Block validation are:
 
  - Verify each transition
- - Check only one transition is added per account 
+ - Check only one transition is added per account
  - Verify the transition merkle tree root hash by hashing the transitions
  - Check the coinbase transaction fee output amount is the sum of all transition fees
- 
+
 Altered consensus rules for Block validation:
 
  - Header hash must include the tsn_root
 
 ## 6 Drive
-Drive is the storage mechanism for Account Objects, which are the data notarized in the 
+Drive is the storage mechanism for Account Objects, which are the data notarized in the
 Transitions between account states stored in blocks.
 
 ### 6.1 Data Types
@@ -1108,194 +1108,194 @@ For each State Transition added in a new block, Drive stores:
 
 1. The merkle tree hashes for all Objects in the Transition
 2. The Object headers, containing properties for identity and relational validation
-3. The Object data, containing public and private properties for the Account and related 
+3. The Object data, containing public and private properties for the Account and related
 Accounts
 
 ### 6.2 Committing Data
-Objects are committed to drive within differential data transitions that accompany Account State 
-Transitions in each new block. By traversing all data transitions for an Account since it was 
-registered, an ‘Active’ state can be resolved to represent the full current set of an Account’s 
+Objects are committed to drive within differential data transitions that accompany Account State
+Transitions in each new block. By traversing all data transitions for an Account since it was
+registered, an ‘Active’ state can be resolved to represent the full current set of an Account’s
 data, which is updated whenever a new block contains a transition for an Account.
 
 ##### Resolving the Active State from differential data transitions <image>
 
 ### 6.3 Scalability
-This provides a scalable solution because nodes only need to keep the current state of an 
-Account‘s data, i.e. the Active dataset, and update this on new State Transitions. This means 
-that the data for many differential states can be pruned, for example a user updating their profile 
+This provides a scalable solution because nodes only need to keep the current state of an
+Account‘s data, i.e. the Active dataset, and update this on new State Transitions. This means
+that the data for many differential states can be pruned, for example a user updating their profile
 100 times results in only 1 copy of the profile Object being stored on nodes.
 
-An exception to this is that some differential states need to be kept for a limited period for block 
+An exception to this is that some differential states need to be kept for a limited period for block
 validation, based on the prune depth definition for the Object type in the schema.
 
-This design is aimed at every-day user access patterns, because for example, a typical user 
-won’t care about seeing all past revisions of their profile information, they are just concerned 
-with the active set that other users will see and nodes will independently verify. If data revisions 
-from the inactive set are needed by a user and they were pruned from the network, only a single 
-copy of a revision is needed to restore the state because the hash of the data can be validated 
-against the associated State Transition in a block and the signature validated against the user’s 
-Subscription Transactions. This means that users who want to keep revisions can recover the 
-data from e.g. a user’s local backup (which a Client could be configured to keep), or from a 
-website listing historical data and validate the Object’s authenticity and presence on the 
-blockchain. Alternatively, users wishing to keep every revision can run their own fullnode with 
+This design is aimed at every-day user access patterns, because for example, a typical user
+won’t care about seeing all past revisions of their profile information, they are just concerned
+with the active set that other users will see and nodes will independently verify. If data revisions
+from the inactive set are needed by a user and they were pruned from the network, only a single
+copy of a revision is needed to restore the state because the hash of the data can be validated
+against the associated State Transition in a block and the signature validated against the user’s
+Subscription Transactions. This means that users who want to keep revisions can recover the
+data from e.g. a user’s local backup (which a Client could be configured to keep), or from a
+website listing historical data and validate the Object’s authenticity and presence on the
+blockchain. Alternatively, users wishing to keep every revision can run their own fullnode with
 pruning disabled on their account.
 
-Effectively, Account data are notarized in blocks, with the notarized data stored in parallel 
-storage that’s pruned to a set-size relating to the number of end-users rather than the number of 
+Effectively, Account data are notarized in blocks, with the notarized data stored in parallel
+storage that’s pruned to a set-size relating to the number of end-users rather than the number of
 transactions (and therefore new addresses) that they are adding to the chain.
 
-The key reason to use a secondary store that extends each block is that blocks are best suited 
-to retain full data on the transitions between states, whereas Drive’s main use-case is to 
-maintain a current ‘Active’ state for Account data, with deprecated states being pruned at a 
+The key reason to use a secondary store that extends each block is that blocks are best suited
+to retain full data on the transitions between states, whereas Drive’s main use-case is to
+maintain a current ‘Active’ state for Account data, with deprecated states being pruned at a
 certain depth, e.g. after 1 month (depending on the Object definition in the Schema) .
 
 ### 6.4 Storage Architecture
-The requirement of how to store Data Transitions in Drive, i.e. storing differential sets of Objects 
-associated to transitions of Account states included in blocks, is similar to storing rows in a 
-database table but in a database that keeps past versions of the row as new transitions arrive 
-with the last row added considered as the active or latest row. This is similar to the properties of 
-a Data Cube, where data are partitioned into dimensions that maintain historical as well as 
+The requirement of how to store Data Transitions in Drive, i.e. storing differential sets of Objects
+associated to transitions of Account states included in blocks, is similar to storing rows in a
+database table but in a database that keeps past versions of the row as new transitions arrive
+with the last row added considered as the active or latest row. This is similar to the properties of
+a Data Cube, where data are partitioned into dimensions that maintain historical as well as
 current versions of the data.
 
-Using this principle, we can note that all Objects in Drive are owned by Accounts, meaning 
-Accounts are the top level partition, or dimension, for Objects in terms of organizing their 
+Using this principle, we can note that all Objects in Drive are owned by Accounts, meaning
+Accounts are the top level partition, or dimension, for Objects in terms of organizing their
 storage strategy.
 
-The second dimension in drive occurs from the fact that data is always added in conjunction 
-with a new block, with the Objects tied to a state transition in a block through the root hash of all 
+The second dimension in drive occurs from the fact that data is always added in conjunction
+with a new block, with the Objects tied to a state transition in a block through the root hash of all
 Objects related to that transition.
 
-When new Accounts are registered in a Subscription Transaction, a new Account partition is 
-created in Drive. As Account owners create state transitions, the corresponding data transition 
-for new or updated Objects in the Account are committed to Drive as a new row, with the first 
+When new Accounts are registered in a Subscription Transaction, a new Account partition is
+created in Drive. As Account owners create state transitions, the corresponding data transition
+for new or updated Objects in the Account are committed to Drive as a new row, with the first
 row representing the resolved Active State of all past data transitions for the Account.
 
-We can model this structure as a data cube, with the total set of registered Accounts forming the 
-X-axis, and the Z-axis representing historical additions and updates of Objects leading up to the 
+We can model this structure as a data cube, with the total set of registered Accounts forming the
+X-axis, and the Z-axis representing historical additions and updates of Objects leading up to the
 current, active state.
 
 ##### <image> 2-dimensional storage of Account Data Transitions
 
-We can create a 3rd dimension in the data cube on the Y-axis by grouping Objects by Schema 
-type, which enables optimizations to be made based on the different usage and verification 
-requirements of types, for example constructing and verifying meta state transitions for Object 
-ratings requires fast searching of Rating trigger Objects by miners preparing a new block to 
+We can create a 3rd dimension in the data cube on the Y-axis by grouping Objects by Schema
+type, which enables optimizations to be made based on the different usage and verification
+requirements of types, for example constructing and verifying meta state transitions for Object
+ratings requires fast searching of Rating trigger Objects by miners preparing a new block to
 minimize verification costs.
 
 ##### <image> 3-dimensional storage of Account Data Transitions by Object Type
 
-The diagram shows Objects within a data transition segregated by Schema type, with types 
+The diagram shows Objects within a data transition segregated by Schema type, with types
 separated along the Y-axis of the data cube.
 
 ### 6.5 Data Partitioning
-Because Object data are always grouped by Accounts that are atomic (that can only be updated 
-by Account Owners without any transfer of data ownership or rights), the Drive data can also be 
-pruned on a per-account basis on Nodes without the capacity to store the full Object dataset, 
-either randomly or based on Accounts that are closed or haven’t had activity for a long time (e.g. 
+Because Object data are always grouped by Accounts that are atomic (that can only be updated
+by Account Owners without any transfer of data ownership or rights), the Drive data can also be
+pruned on a per-account basis on Nodes without the capacity to store the full Object dataset,
+either randomly or based on Accounts that are closed or haven’t had activity for a long time (e.g.
 12 months).
 
-In such a case, only a single node with a copy of the data is required to restore it, or the data 
+In such a case, only a single node with a copy of the data is required to restore it, or the data
 can be recovered from a backup or archive source.
 
-One limitation to partitioning the data as such, is that the Object headers containing the foreign 
-key relations are needed to perform relational validation historically, for example, to validate a 
-contact request from Alice to Bob, the consensus rules dictate that Bob must exist to maint the 
+One limitation to partitioning the data as such, is that the Object headers containing the foreign
+key relations are needed to perform relational validation historically, for example, to validate a
+contact request from Alice to Bob, the consensus rules dictate that Bob must exist to maint the
 relational integrity of the overall Object set in Drive.
 
-Below we illustrate (generically) depths at which Object transitions can be pruned based on the 
+Below we illustrate (generically) depths at which Object transitions can be pruned based on the
 PruneDepth specified in the Object’s Schema definition, shown on the Z-axis of the data cube.
 
 ##### <image> Pruning Transitions by Object Type
 
-The main reason to use an informal, ad-hoc approach to partitioning instead of a formal 
-sharding strategy is that formal sharding can weaken the durability of the data because 
-attackers can target specific data with knowledge of the subset of nodes that are storing that 
-data. There is also an overhead to formal sharding with the need to organize and rebuild shards 
-as nodes turnover, as opposed to nodes for example randomly pruning old Accounts when they 
+The main reason to use an informal, ad-hoc approach to partitioning instead of a formal
+sharding strategy is that formal sharding can weaken the durability of the data because
+attackers can target specific data with knowledge of the subset of nodes that are storing that
+data. There is also an overhead to formal sharding with the need to organize and rebuild shards
+as nodes turnover, as opposed to nodes for example randomly pruning old Accounts when they
 run low on disk space.
 
-The diagram below shows an ad-hoc Account pruning strategy, with 2 of the 6 accounts pruned 
+The diagram below shows an ad-hoc Account pruning strategy, with 2 of the 6 accounts pruned
 along the X-axis of the data cube.
 
 ##### <image> Account Pruning
 
 
 ## 7 Decentralized API
-DAPI is the decentralized Application Programming Interface that enables Evolution end-users 
-and applications to connect directly to the Dash P2P network to read/update Account data and 
-read/create Transactions using HTTPS enabled clients such as browsers and mobile 
+DAPI is the decentralized Application Programming Interface that enables Evolution end-users
+and applications to connect directly to the Dash P2P network to read/update Account data and
+read/create Transactions using HTTPS enabled clients such as browsers and mobile
 applications.
 
 ### 7.1 Network Architecture
-DAPI is part of a re-architecting of Dash’s network design in Evolution to introduce a way for 
+DAPI is part of a re-architecting of Dash’s network design in Evolution to introduce a way for
 Clients to access the P2P network securely and directly.
 
-This is because in the current design inherited from Bitcoin, there is really no suitable protocol 
-level definition of a Client as there is in most service models (such as Client-Server), as every 
-user is expected to access via a P2P node and interact as a peer directly, which is an 
-understandable assumption in the early versions of Bitcoin, where every node was a miner, 
-auditor, and maintained a full local copy of the blockchain, without foreknowledge of the 
-segregation of roles introduced with developments such as pools, asics and non-mining 
-(non-rewarded) fullnodes, and a mass exodus of desktop users to browser/mobile based 
+This is because in the current design inherited from Bitcoin, there is really no suitable protocol
+level definition of a Client as there is in most service models (such as Client-Server), as every
+user is expected to access via a P2P node and interact as a peer directly, which is an
+understandable assumption in the early versions of Bitcoin, where every node was a miner,
+auditor, and maintained a full local copy of the blockchain, without foreknowledge of the
+segregation of roles introduced with developments such as pools, asics and non-mining
+(non-rewarded) fullnodes, and a mass exodus of desktop users to browser/mobile based
 applications since Bitcoin was launched.
 
-There are different modes of P2P node that users can operate under in the existing 
-architectures, with the closest thing to a client being a user operating a node without a copy of 
-the blockchain and using SPV validation over P2P messaging, essentially a selfish node, and 
+There are different modes of P2P node that users can operate under in the existing
+architectures, with the closest thing to a client being a user operating a node without a copy of
+the blockchain and using SPV validation over P2P messaging, essentially a selfish node, and
 when mediated via a centralized proxy, referred to as a ‘lite client’, e.g. Electrum.
 
-For these reasons, DAPI is really the endpoint for a new Client Protocol that is adjacent to the 
-existing P2P Network Protocol, with Clients being any device running software that connects to 
+For these reasons, DAPI is really the endpoint for a new Client Protocol that is adjacent to the
+existing P2P Network Protocol, with Clients being any device running software that connects to
 DAPI over HTTPS using the correct interoperation protocol.
 
 #### 7.1.1 Security Model
-The security model for DAPI and its clients is based on this non-P2P selfish SPV node model, 
-whereby Clients can connect to Nodes and add data to the blockchain (Transactions and 
-Transitions) without needing to participate as peers and using the most commonly supported 
-and censorship resistant protocol, HTTPS. Clients can also access any node in the network to 
+The security model for DAPI and its clients is based on this non-P2P selfish SPV node model,
+whereby Clients can connect to Nodes and add data to the blockchain (Transactions and
+Transitions) without needing to participate as peers and using the most commonly supported
+and censorship resistant protocol, HTTPS. Clients can also access any node in the network to
 validate Transaction and Transition data using SPV over HTTPS.
 
-Another aspect to mention regarding DAPI’s security model is that it is based on full ownership 
-of private keys by client users, with private keys never entering DAPI, i.e. DAPI nodes cannot 
-steal users funds. DAPI nodes also never serve code or content, e.g. JavaScript or HTML to a 
-browser; DAPI is purely an XHR over HTTPS based API accessed by (ideally) 
+Another aspect to mention regarding DAPI’s security model is that it is based on full ownership
+of private keys by client users, with private keys never entering DAPI, i.e. DAPI nodes cannot
+steal users funds. DAPI nodes also never serve code or content, e.g. JavaScript or HTML to a
+browser; DAPI is purely an XHR over HTTPS based API accessed by (ideally)
 deterministically-built open-source clients.
 
-In addition, DAPI nodes must work together in 3-of-5 Masternode Quorums and agree on the 
-validation of Client requests and the content of Client responses, with the Quorum formed 
-deterministically based on a hash of the user’s Account public key and a recent block hash to 
-prevent pre-planned targeted attacks on individual sets of nodes. DAPI Quorums provide 
-redundancy to uncommitted Client session data and reduce the chance of malicious nodes 
-wasting Client time with responses that Clients subsequently invalidate using SPV (with the 
+In addition, DAPI nodes must work together in 3-of-5 Masternode Quorums and agree on the
+validation of Client requests and the content of Client responses, with the Quorum formed
+deterministically based on a hash of the user’s Account public key and a recent block hash to
+prevent pre-planned targeted attacks on individual sets of nodes. DAPI Quorums provide
+redundancy to uncommitted Client session data and reduce the chance of malicious nodes
+wasting Client time with responses that Clients subsequently invalidate using SPV (with the
 Client SPV process being applied externally to the Client’s Quorum, i.e. network wide).
 
 #### 7.1.2 Network Topology
-The connection topology for Dash then bifurcates into 2 rings in the network. The current P2P 
-network topology (technically a partially-connected mesh) becomes the inner ring consisting of 
-P2P nodes that validate, persist and provide the blockchain to other P2P nodes, with an outer 
-ring consisting of individual Clients connected directly to a cluster of collateralized P2P nodes 
-serving HTTPS requests (Client / Multi-node-server) instead of intermediary proxy services that 
-connect P2P on the backend, which we call the Client-to-Peer (C2P) network, technically a 
+The connection topology for Dash then bifurcates into 2 rings in the network. The current P2P
+network topology (technically a partially-connected mesh) becomes the inner ring consisting of
+P2P nodes that validate, persist and provide the blockchain to other P2P nodes, with an outer
+ring consisting of individual Clients connected directly to a cluster of collateralized P2P nodes
+serving HTTPS requests (Client / Multi-node-server) instead of intermediary proxy services that
+connect P2P on the backend, which we call the Client-to-Peer (C2P) network, technically a
 Client-to-collateralized-Peer-quorum network, also known as Tier-3 in Dash.
 
-One issue with this structure is the incentives model or specifically lack of incentivizes for 
-fullnodes to support a very-large amount of selfish nodes; currently the incentive model is pure 
-p2p based, i.e. overall the p2p network survives with enough nodes seeding (operating as 
-relaying fullnodes accepting inbound connections) in the network to handle the additional traffic 
-from a relatively small amount of leechers (mostly desktop wallets, centralized proxies such as 
-SPV proxies, web wallets and payment processors) which end-users and applications connect 
-to. By removing the need for leechers to connect via proxies (i.e. the majority of end-users not 
-wishing to participate or support the P2P network directly) , and therefore resulting in a large 
-increase in selfish nodes (clients who can now access the network directly instead of via 
-centralized SPV or Web wallet proxies), the cost to running a fullnode increases and the 
+One issue with this structure is the incentives model or specifically lack of incentivizes for
+fullnodes to support a very-large amount of selfish nodes; currently the incentive model is pure
+p2p based, i.e. overall the p2p network survives with enough nodes seeding (operating as
+relaying fullnodes accepting inbound connections) in the network to handle the additional traffic
+from a relatively small amount of leechers (mostly desktop wallets, centralized proxies such as
+SPV proxies, web wallets and payment processors) which end-users and applications connect
+to. By removing the need for leechers to connect via proxies (i.e. the majority of end-users not
+wishing to participate or support the P2P network directly) , and therefore resulting in a large
+increase in selfish nodes (clients who can now access the network directly instead of via
+centralized SPV or Web wallet proxies), the cost to running a fullnode increases and the
 incentives model of the P2P network is broken.
 
-In Dash obviously nodes are incentivized to provide non-mining services but not specifically to 
-handle this new topology, i.e. currently nodes could still be rewarded without provably serving 
-these end-users honestly. To solve this, we alter collateralized nodes (Masternodes) rewards to 
-be provisional on the amount of Client data they add to the blockchain (technically, the quantity 
-of Account State Transitions), which provides incentives to users who choose to operate nodes 
-that will serve HTTPS Clients and a deterministic way to ensure only nodes providing an 
+In Dash obviously nodes are incentivized to provide non-mining services but not specifically to
+handle this new topology, i.e. currently nodes could still be rewarded without provably serving
+these end-users honestly. To solve this, we alter collateralized nodes (Masternodes) rewards to
+be provisional on the amount of Client data they add to the blockchain (technically, the quantity
+of Account State Transitions), which provides incentives to users who choose to operate nodes
+that will serve HTTPS Clients and a deterministic way to ensure only nodes providing an
 adequate (and honest) Client-service level are rewarded.
 
 ### 7.2 Client Protocol
@@ -1309,109 +1309,109 @@ pseudonymously update the data for Accounts to which the user holds the private 
 Requires nonce-based mutual authentication between the Client and the Masternode
 quorum maintaining the session.
 
-When an Account Owner wants to start an interactive session (i.e. update their Account state) 
-with DAPI from a Client, there are several steps they need to perform. Note this is not needed 
-for reading data on any Account in Dash, as clients can query any DAPI node for the data 
-anonymously. Also, this does not preclude users accessing DAPI from a local fullnode if they 
+When an Account Owner wants to start an interactive session (i.e. update their Account state)
+with DAPI from a Client, there are several steps they need to perform. Note this is not needed
+for reading data on any Account in Dash, as clients can query any DAPI node for the data
+anonymously. Also, this does not preclude users accessing DAPI from a local fullnode if they
 want full validation of all interaction using a full copy of the blockchain and related data.
 
-The first step is to obtain a list of valid Masternodes, and secondly to determine which 
+The first step is to obtain a list of valid Masternodes, and secondly to determine which
 Masternodes their client must connect to to be able to update their account state.
 
 #### 7.2.1 Obtaining the Masternode list
-A Client can connect to any number of nodes in the Dash network to obtain the Masternode list 
-and validate its contents using SPV, using essentially the same security model as SPV/Electrum 
-clients but with a much higher degree of decentralization, i.e. Clients can access any node in the 
-Dash network instead of having to proxy through a small set of centralized layer-2 servers, and 
-as that access is HTTPS based, it is available from any HTTPS enabled Client, such as a web 
+A Client can connect to any number of nodes in the Dash network to obtain the Masternode list
+and validate its contents using SPV, using essentially the same security model as SPV/Electrum
+clients but with a much higher degree of decentralization, i.e. Clients can access any node in the
+Dash network instead of having to proxy through a small set of centralized layer-2 servers, and
+as that access is HTTPS based, it is available from any HTTPS enabled Client, such as a web
 browser
 
-Clients can use HTTPS DNS seeds that the community setup to build an initial list of 
+Clients can use HTTPS DNS seeds that the community setup to build an initial list of
 Masternodes to connect to in the same way as the core wallet today.
 
-Once connected to some initial DAPI nodes, the Client can construct a list of all Active 
-Masternodes and their IPs and VINs, and validate the Active status using SPV on the 
+Once connected to some initial DAPI nodes, the Client can construct a list of all Active
+Masternodes and their IPs and VINs, and validate the Active status using SPV on the
 Masternode Account Objects to avoid spoofed nodes from a DNSseed.
 
 #### 7.2.2 Quorum Sessions
-Quorums are determined using the same rules as the current Dash protocol but based on the 
+Quorums are determined using the same rules as the current Dash protocol but based on the
 RegTX hash of the Account who is accessing the Quorum.
 
-Once a Client has constructed a valid active Masternode list, they determine their quorum and 
-connect to it using an authentication process specific to DAPI: DAuth, or Decentralized 
+Once a Client has constructed a valid active Masternode list, they determine their quorum and
+connect to it using an authentication process specific to DAPI: DAuth, or Decentralized
 Authentication.
 
-The principle of DAuth is that, instead of a one-way authentication as in the case of 
-client-server, where the server authenticates the client, both parties in a point-to-point 
-connection between two parties (e.g. Client to Node in DAPI) authenticate each other, and using 
+The principle of DAuth is that, instead of a one-way authentication as in the case of
+client-server, where the server authenticates the client, both parties in a point-to-point
+connection between two parties (e.g. Client to Node in DAPI) authenticate each other, and using
 a decentralized source (e.g. SPV verifiable data sourced from any node in the network).
 
-Once both parties (e.g. client and masternode) have authenticated each other, they 
-communicate through a secure channel where each message has to incorporate a deterministic 
-challenge in the payload derived from an HD seed provided on session initiation with all 
-messages signed by and encrypted for the other party to prevent MITM and Spoofing attacks, 
+Once both parties (e.g. client and masternode) have authenticated each other, they
+communicate through a secure channel where each message has to incorporate a deterministic
+challenge in the payload derived from an HD seed provided on session initiation with all
+messages signed by and encrypted for the other party to prevent MITM and Spoofing attacks,
 similar to an HMAC.
 
-Note: Typically Alice would be an Evolution client like a web browser and Bob would be a 
+Note: Typically Alice would be an Evolution client like a web browser and Bob would be a
 Masternode, but these roles are not hardcoded into the protocol.
 
 <image>
 
-This provides a high level of security in terms of message authenticity and integrity and is the 
+This provides a high level of security in terms of message authenticity and integrity and is the
 basis of Client-node connections in DAPI.
 
 ### 7.3 Quorum State Transitions
 
 #### 7.3.1 Creation
-Transitions from users on their Accounts are created during authenticated interactive 
-Client-Quorum Sessions, during which time the designated Quorum caches any updates to the 
-Account’s Data Objects and at set intervals (2.5 minutes) propagates these as a batch 
+Transitions from users on their Accounts are created during authenticated interactive
+Client-Quorum Sessions, during which time the designated Quorum caches any updates to the
+Account’s Data Objects and at set intervals (2.5 minutes) propagates these as a batch
 representing a new Account State to nodes in a State Transition data structure.
 
-The State Transition must contain a complete updated Owner State, and a partial data section, 
-containing only new/updated Objects, and their index in the derived merkle tree. The merkle 
-tree hashes between the root and leaf nodes aren’t needed within the data as validating nodes 
+The State Transition must contain a complete updated Owner State, and a partial data section,
+containing only new/updated Objects, and their index in the derived merkle tree. The merkle
+tree hashes between the root and leaf nodes aren’t needed within the data as validating nodes
 can build these locally.
 
 <image>
 
-If validated by a miner, the State Transition has its data included in a block by miners for a fee 
-deducted from the Account’s tallied fee-balance, and its data (that was notarized by the 
-transitions inclusion in the block) included in Object Storage by Masternodes who must provably 
-facilitate a minimum quota of State Transitions per payment cycle relative to the total volume 
+If validated by a miner, the State Transition has its data included in a block by miners for a fee
+deducted from the Account’s tallied fee-balance, and its data (that was notarized by the
+transitions inclusion in the block) included in Object Storage by Masternodes who must provably
+facilitate a minimum quota of State Transitions per payment cycle relative to the total volume
 and number of nodes, to receive rewards from the infrastructure portion of the block reward.
 
-We call the 2.5 minute State Transition propagation by Quorums a ‘heartbeat’, which is 
-designed to minimize the frequency of transitions to an account on the blockchain (and fees 
-deducted from the Account), whilst still occurring frequently enough to provide usability. Client’s 
-have the ability to control this frequency, or raise a state transition at any time to ‘save’ their data 
+We call the 2.5 minute State Transition propagation by Quorums a ‘heartbeat’, which is
+designed to minimize the frequency of transitions to an account on the blockchain (and fees
+deducted from the Account), whilst still occurring frequently enough to provide usability. Client’s
+have the ability to control this frequency, or raise a state transition at any time to ‘save’ their data
 in the next block..
 
-As users can connect with multiple devices under the same Account, in such a case the 
-Quorum also resolves a single update path to the Account Object set with the client first to 
-construct a single Transition, as blocks must contain zero or one Transition objects per Account 
+As users can connect with multiple devices under the same Account, in such a case the
+Quorum also resolves a single update path to the Account Object set with the client first to
+construct a single Transition, as blocks must contain zero or one Transition objects per Account
 per block.
 
 #### 7.3.2 Transition Authorization
-Once the Quorum has assembled the State Transition, it sends the header (which includes the 
-root hash of the data) to the Account’s connected Clients for authorization using a web-socket 
+Once the Quorum has assembled the State Transition, it sends the header (which includes the
+root hash of the data) to the Account’s connected Clients for authorization using a web-socket
 callback or as part of a poll response.
 
-Each Client then compares the root hash of the merkle tree for their local Object set to the root 
-DataHash in the State Transition header, and if the header is valid, signs the header hash with 
-their Account private key and sends it back to the quorum who propagates it to the P2P 
+Each Client then compares the root hash of the merkle tree for their local Object set to the root
+DataHash in the State Transition header, and if the header is valid, signs the header hash with
+their Account private key and sends it back to the quorum who propagates it to the P2P
 network.
 
 ### 7.4 Simplified Verification
 The SPV implementation for the Client protocol is being prepared in a separate paper.
 
 ## 8 DashPay Model
-DashPay is the JSON Schema Model that specifies the Object types and rules that implement 
-the Dash Evolution features to end-users. DashPay is in effect a decentralized application 
-running on top of Dash where end users and applications can interact trustlessly via state 
+DashPay is the JSON Schema Model that specifies the Object types and rules that implement
+the Dash Evolution features to end-users. DashPay is in effect a decentralized application
+running on top of Dash where end users and applications can interact trustlessly via state
 sequences within the rule-set defined in the Schema.
 
-We can represent the Objects in the Schema Model at a high level using a UML 
+We can represent the Objects in the Schema Model at a high level using a UML
 Composition-style diagram:
 
 ##### <image> DashPay Schema Model Composition
@@ -1419,122 +1419,122 @@ Composition-style diagram:
 Note: JSON and State Sequences for the Model are being prepared in a separate paper.
 
 ## 9 Triggers
-Triggers are Objects types that have hardwired functions in nodes, such as rating accounts, 
-budget cycle and masternode payments, meaning essentially consensus rules depend on the 
+Triggers are Objects types that have hardwired functions in nodes, such as rating accounts,
+budget cycle and masternode payments, meaning essentially consensus rules depend on the
 data a small number of types in the Schema.
 
-We don’t need to wire the actual derived object types, just signify in the Schema that certain 
+We don’t need to wire the actual derived object types, just signify in the Schema that certain
 Objects are types that cause triggers.
 
-For example, if a User rates an App in the header of their UserApp Object, that Object has a 
+For example, if a User rates an App in the header of their UserApp Object, that Object has a
 type in the Schema signifying it has a header that raises ratings.
 
-Therefore, nodes can remain agnostic to the specific Schema data model, but when Objects 
+Therefore, nodes can remain agnostic to the specific Schema data model, but when Objects
 have Trigger types, use those Object data for predefined trigger functions.
 
-Note that trigger objects will usually have a higher prune depth, for example, all Budget objects 
-need to be kept for at least 1 budget cycle (roughly 1 month) for nodes to be able to validate 
+Note that trigger objects will usually have a higher prune depth, for example, all Budget objects
+need to be kept for at least 1 budget cycle (roughly 1 month) for nodes to be able to validate
 Superblocks using consensus rules.
 
 ### 9.1 Ratings
-Ratings are intrinsic to Evolution, as they allow a democratic and decentralized way for users to 
-apply a score to other Accounts (such as Users and Apps) that they use, and to report users 
-that break the Dash Terms of Service which can then be closed by Masternode voting, if a 
+Ratings are intrinsic to Evolution, as they allow a democratic and decentralized way for users to
+apply a score to other Accounts (such as Users and Apps) that they use, and to report users
+that break the Dash Terms of Service which can then be closed by Masternode voting, if a
 minimum consensus is reached.
 
-Note that having an Account closed can never result in the loss of funds by the Account owner 
-or preventing an Account from moving their funds, instead, the Account is banned from creating 
+Note that having an Account closed can never result in the loss of funds by the Account owner
+or preventing an Account from moving their funds, instead, the Account is banned from creating
 any State Transitions for the Account, meaning they cannot create or update new data Objects.
 
 ##### <image> Absentee Account Rating via a Delegate State Transition
 
-In the above example, the process is: 
+In the above example, the process is:
 
-1. Alice and Bob both set a rating on their UserApp Object for Charlie’s App, which is 
-selling widgets. 
-2. A miner collects the State Transitions for Alice & Bob’s update into the block and detects 
+1. Alice and Bob both set a rating on their UserApp Object for Charlie’s App, which is
+selling widgets.
+2. A miner collects the State Transitions for Alice & Bob’s update into the block and detects
 the presence of Rating values in the Object dataset
-3. The miner must tally the ratings (based on the total ratings for Charlie’s App to date, and 
+3. The miner must tally the ratings (based on the total ratings for Charlie’s App to date, and
 the average rating, combined with any new ratings in this block).
-4. Because Charlie has not updated his Account in this block, the miner must create a 
-Delegate State Transition in his absence, which updates the metadata but leaves the 
+4. Because Charlie has not updated his Account in this block, the miner must create a
+Delegate State Transition in his absence, which updates the metadata but leaves the
 Data Transition as null (or just a hash of the last state transition by Charlie
-5. Validating nodes must repeat this process to validate that the miner has included the 
-Delegate State Transition for any State Transitions the miner included that contain 
+5. Validating nodes must repeat this process to validate that the miner has included the
+Delegate State Transition for any State Transitions the miner included that contain
 ratings for Charlie’s account
-6. This incentivized the miner to create the Delegate State Transition data even though 
-they are not claiming a fee directly, because they can’t include the State Transition from 
-Alice & Bob’s accounts without this Delegate State Transition to handle the change in 
+6. This incentivized the miner to create the Delegate State Transition data even though
+they are not claiming a fee directly, because they can’t include the State Transition from
+Alice & Bob’s accounts without this Delegate State Transition to handle the change in
 Charlie’s rating meta state.
 
 ### 9.2 Masternode Shares
-Masternode shares enable Account holders to group together to collateralize a Masternode 
-Account operator (which links to a physical Masternode instance in the P2P network), instead of 
-only users with 1000 Dash being able to operate a Masternode. In this Schema design, share 
-owners receive their share of the rewards deterministically but only the Masternode account 
+Masternode shares enable Account holders to group together to collateralize a Masternode
+Account operator (which links to a physical Masternode instance in the P2P network), instead of
+only users with 1000 Dash being able to operate a Masternode. In this Schema design, share
+owners receive their share of the rewards deterministically but only the Masternode account
 holder can vote on behalf of the node, but that can be added in the Schema later.
 
-1. Users who wish to obtain MN shares (e.g. Alice & Bob) send an amount (e.g. 500 Dash 
-each), to an address to which they own the private keys themselves with specific 
-metadata signifying this as a collateral TX, and with a CheckTimeLockVerify preventing 
-movement of the funds for 30 days (this is a measure to reduce turnover rate of MN 
-share owners initially, if they stay with a particular MN operator for over 30 days they can 
+1. Users who wish to obtain MN shares (e.g. Alice & Bob) send an amount (e.g. 500 Dash
+each), to an address to which they own the private keys themselves with specific
+metadata signifying this as a collateral TX, and with a CheckTimeLockVerify preventing
+movement of the funds for 30 days (this is a measure to reduce turnover rate of MN
+share owners initially, if they stay with a particular MN operator for over 30 days they can
 move the funds instantly)
-2. A Masternode Account owner (e.g. Charlie) then ‘claims’ Alice & Bob’s collateral TX by 
-adding the TX hashes to a new CollateralStatus Object in his dataset (or updating the 
-existing CollateralStatus Object if one exists), provided no other Masternode Account 
+2. A Masternode Account owner (e.g. Charlie) then ‘claims’ Alice & Bob’s collateral TX by
+adding the TX hashes to a new CollateralStatus Object in his dataset (or updating the
+existing CollateralStatus Object if one exists), provided no other Masternode Account
 has claimed them.
-3. To verify that the Masternode Account is fully collateralized, nodes check the Account’s 
+3. To verify that the Masternode Account is fully collateralized, nodes check the Account’s
 CollateralStatus Object data as follows:
 
- a. The Collateral TX’s listed in the Object are unspent and not claimed by any other 
+ a. The Collateral TX’s listed in the Object are unspent and not claimed by any other
 Masternode Account.
 
- b. The Collateral TX’s sum to at least the minimum collateral requirement (1000 
+ b. The Collateral TX’s sum to at least the minimum collateral requirement (1000
 Dash)
-4. The maximum number of shares is 20 per Masternode, but individual shares can be any 
-amount over 5 Dash. The Masternode Account owner must provide at least 10% of the 
+4. The maximum number of shares is 20 per Masternode, but individual shares can be any
+amount over 5 Dash. The Masternode Account owner must provide at least 10% of the
 total requirement themselves, to increase the cost to setup a malicious masternode.
-5. Note that the share owners are not risking funds as they do not share their private keys, 
-apart from opportunity cost or the risk of the Masternode operator not running their node 
+5. Note that the share owners are not risking funds as they do not share their private keys,
+apart from opportunity cost or the risk of the Masternode operator not running their node
 with enough uptime or service level to receive the reward.
 
 ### 9.3 Proof-of-Service Verification
-Proof of Service is a deterministic verification technique that ensures that Masternodes are 
-providing adequate service levels to the network before being paid any reward, and is key to 
-maintaining the incentives model of Dash Evolution. This is because if we don’t force 
-Masternodes to provide an adequate level of service in providing DAPI to Clients as well as their 
-new increased storage obligations, they can lower their costs by bypassing checks and not 
-providing services and storage that will cost them additional bandwidth, disk and CPU/Memory, 
-which results in less throughput, durability and availability for the Dash Network which translates 
-to a less secure and less available service for Clients - it is fundamental to the long term 
-economic viability of Dash as a decentralized cryptocurrency, and to date there has been no 
-deterministic solution, i.e. bypassable with enough effort (even though there has been no 
+Proof of Service is a deterministic verification technique that ensures that Masternodes are
+providing adequate service levels to the network before being paid any reward, and is key to
+maintaining the incentives model of Dash Evolution. This is because if we don’t force
+Masternodes to provide an adequate level of service in providing DAPI to Clients as well as their
+new increased storage obligations, they can lower their costs by bypassing checks and not
+providing services and storage that will cost them additional bandwidth, disk and CPU/Memory,
+which results in less throughput, durability and availability for the Dash Network which translates
+to a less secure and less available service for Clients - it is fundamental to the long term
+economic viability of Dash as a decentralized cryptocurrency, and to date there has been no
+deterministic solution, i.e. bypassable with enough effort (even though there has been no
 indication that any nodes have been modified to bypass existing non-deterministic PoSe).
 
-1. Tally the total number of State Transitions in blocks within the current Masternode 
+1. Tally the total number of State Transitions in blocks within the current Masternode
 payment cycle (e.g. 2 weeks)
-2. Divide this number by the average number of active Masternode Accounts within the 
+2. Divide this number by the average number of active Masternode Accounts within the
 current MN pay cycle.
-3. Tally the total number of State Transitions by the Masternode Account being verified for 
-PoSe, determined by the quorum signatures on the State Transitions (which can be 
+3. Tally the total number of State Transitions by the Masternode Account being verified for
+PoSe, determined by the quorum signatures on the State Transitions (which can be
 pruned after a single MN payment cycle)
-4. If the total is less than a % of the average (e.g. median * 0.5), the MN fails PoSe for that 
+4. If the total is less than a % of the average (e.g. median * 0.5), the MN fails PoSe for that
 cycle.
 
-Therefore, Masternodes must be committing State Transitions to a minimum quota to get 
-rewarded in a payment cycle, and as each transition has a fee, so Masternodes cannot create 
-the State Transitions themselves as it would be a zero-sum-game (and also the MN operator 
-cannot predict which Accounts he/she is designated to serve as quorum determination is based 
+Therefore, Masternodes must be committing State Transitions to a minimum quota to get
+rewarded in a payment cycle, and as each transition has a fee, so Masternodes cannot create
+the State Transitions themselves as it would be a zero-sum-game (and also the MN operator
+cannot predict which Accounts he/she is designated to serve as quorum determination is based
 on a recent block hash).
 
 ### 9.4 Masternode Rewards
-As each Masternode has an Account object in Dash Evolution, we can get a deterministic list of 
-all active Masternodes (and quorums) at any block going back through the chain (since 
-Evolution was activated). Therefore the list can be retrieved by querying all active MNs at a 
-given block height and checking their active state. A short term PoSe verification is performed 
-(e.g. hourly) that just checks if any State Transitions have been handled by a MN, to see if the 
-MN is active, alternatively allow direct query to the MNs using the existing MNAnnounce 
+As each Masternode has an Account object in Dash Evolution, we can get a deterministic list of
+all active Masternodes (and quorums) at any block going back through the chain (since
+Evolution was activated). Therefore the list can be retrieved by querying all active MNs at a
+given block height and checking their active state. A short term PoSe verification is performed
+(e.g. hourly) that just checks if any State Transitions have been handled by a MN, to see if the
+MN is active, alternatively allow direct query to the MNs using the existing MNAnnounce
 message data.
 
 ### 9.5 Governance
@@ -1545,35 +1545,35 @@ Superblock creation and validation by nodes, which pay out the 10% of Block rewa
 month to the winning proposals (using the existing consensus rules for SB validation).
 
 #### 9.5.1 Proposal Creation
-Apps can create a new budget proposal by creating a new AppBudgetProposal and setting the 
+Apps can create a new budget proposal by creating a new AppBudgetProposal and setting the
 properties for Name, Description, URL, PayDate, NumPayments, PayAmount, PaymentAddr.
 
 #### 9.5.2 Voting
-To vote on a proposal, a Masternode Account owner updates their MasternodeBudgetVotes 
-Object with a reference to the AppBudgetProposal, and adds their yes/no/abstain via the Vote 
-property. Note that the MasternodeAccount has to pay fees for a State Transition to cast the 
+To vote on a proposal, a Masternode Account owner updates their MasternodeBudgetVotes
+Object with a reference to the AppBudgetProposal, and adds their yes/no/abstain via the Vote
+property. Note that the MasternodeAccount has to pay fees for a State Transition to cast the
 vote (unless a solution can be found).
 
 #### 9.5.3 Super Blocks
-Superblocks are created deterministically by Miners in Evolution, by the Miner querying and all 
-MasternodeBudgetVotes Objects within State Transitions included in blocks since the last 
+Superblocks are created deterministically by Miners in Evolution, by the Miner querying and all
+MasternodeBudgetVotes Objects within State Transitions included in blocks since the last
 budget cycle period and tallying the votes.
 
-The miner then adds the appropriate associated payments in the coinbase transaction (using 
-the budget finalization rules from the current system) with the process repeated for verifying 
+The miner then adds the appropriate associated payments in the coinbase transaction (using
+the budget finalization rules from the current system) with the process repeated for verifying
 nodes.
 
-Note that nodes must maintain full object data for all governance objects to a certain depth (e.g. 
+Note that nodes must maintain full object data for all governance objects to a certain depth (e.g.
 not prune until 1 month)
 
 ### 9.6 System Admins
-In Evolution version 1, administration of the system (i.e.deactivating Subscriber Objects) will be 
-a simple function of achieving a certain % of Masternode votes (e.g. 25%) to ban Accounts, 
+In Evolution version 1, administration of the system (i.e.deactivating Subscriber Objects) will be
+a simple function of achieving a certain % of Masternode votes (e.g. 25%) to ban Accounts,
 however, in future a more granular and incentivized approach can be taken.
 
-To ban an Account, users can ‘report’ an Account using a similar system to ratings. Masternode 
-admins can then vote on these bans using their AdminVotes Object, which miners must create a 
-delegate state transition for the Account being voted on with a ban rating and total in the next 
-block. When the votes reach a ban level, the miner of the next block must set a delegate state 
-transition for the Account being reported with the Status set to ‘Closed’ for the block to be 
+To ban an Account, users can ‘report’ an Account using a similar system to ratings. Masternode
+admins can then vote on these bans using their AdminVotes Object, which miners must create a
+delegate state transition for the Account being voted on with a ban rating and total in the next
+block. When the votes reach a ban level, the miner of the next block must set a delegate state
+transition for the Account being reported with the Status set to ‘Closed’ for the block to be
 accepted via consensus rules.
