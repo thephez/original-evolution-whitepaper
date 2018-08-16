@@ -39,48 +39,48 @@ the payments layer through the HTTPS API.
 
 
 ## Contents
-1. Introduction
-2. Design Rationale
-  1. Evolution Goals
-  2. Accounts & Objects
-  3. Consensus
-  4. Decentralized Access
-3. Accounts
-  1. Account Subscriptions
-  2. Account State
-  3. Account Data
-  4. State Transitions
-  5. Data Transitions
-4. Schema
-  1. Interoperability
-  2. Schema Base
-  3. Schema Model
-  4. Payment Objects
-  5. State Sequences
-5. Consensus
-  1. Persistence Strategy
-  2. State Transitions
-  3. Block Protocol
-  4. Block Validation
-6. Drive
-  1. Data Types
-  2. Committing Data
-  3. Scalability
-  4. Storage Architecture
-  5. Data Partitioning
-7. Decentralized API
-  1. Network Architecture
-  2. Client Protocol
-  3. Quorum State Transitions
-  4. Simplified Verification
-8. DashPay Model
-9. Triggers
-  1. Ratings
-  2. Masternode Shares
-  3. Proof-of-Service Verification
-  4. Masternode Rewards
-  5. Governance
-  6. System Admins
+1. [Introduction](#1-introduction)
+2. [Design Rationale](#2-design-rationale)
+  1. [Evolution Goals](#2-1-evolution-goals)
+  2. [Accounts & Objects](#2-2-accounts-objects)
+  3. [Consensus](#2-3-consensus)
+  4. [Decentralized Access](#2-4-decentralized-access)
+3. [Accounts](#3-accounts)
+  1. [Account Subscriptions](#3-1-account-subscriptions)
+  2. [Account State](#3-2-account-state)
+  3. [Account Data](#3-3-account-data)
+  4. [State Transitions](#3-4-state-transitions)
+  5. [Data Transitions](#3-5-data-transitions)
+4. [Schema](#4-schema)
+  1. [Interoperability](#4-1-interoperability)
+  2. [Schema Base](#4-2-schema-base)
+  3. [Schema Model](#4-3-schema-model)
+  4. [Payment Objects](#4-4-payment-objects)
+  5. [State Sequences](#4-5-state-sequences)
+5. [Consensus](#5-consensus)
+  1. [Persistence Strategy](#5-1-persistence-strategy)
+  2. [State Transitions](#5-2-state-transitions)
+  3. [Block Protocol](#5-3-block-protocol)
+  4. [Block Validation](#5-4-block-validation)
+6. [Drive](#6-drive)
+  1. [Data Types](#6-1-data-types)
+  2. [Committing Data](#6-2-committing-data)
+  3. [Scalability](#6-3-scalability)
+  4. [Storage Architecture](#6-4-storage-architecture)
+  5. [Data Partitioning](#6-5-data-partitioning)
+7. [Decentralized API](#7-decentralized-api)
+  1. [Network Architecture](#7-1-network-architecture)
+  2. [Client Protocol](#7-2-client-protocol)
+  3. [Quorum State Transitions](#7-3-quorum-state-transitions)
+  4. [Simplified Verification](#7-4-simplified-verification)
+8. [DashPay Model](#8-dashpay-model)
+9. [Triggers](#9-triggers)
+  1. [Ratings](#9-1-ratings)
+  2. [Masternode Shares](#9-2-masternode-shares)
+  3. [Proof-of-Service Verification](#9-3-proof-of-service-verification)
+  4. [Masternode Rewards](#9-4-masternode-rewards)
+  5. [Governance](#9-5-governance)
+  6. [System Admins](#9-6-system-admins)
 
 ## 1 Introduction
 Dash Evolution provides an Object-based Tier-3 access layer that encapsulates existing core
