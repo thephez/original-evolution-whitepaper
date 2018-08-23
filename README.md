@@ -355,7 +355,9 @@ transactions more efficient and ensuring integrity of the Subscription Transacti
 #### 3.1.1 Registration
 The transaction metadata needed to create a new Account with sample data is as follows:
 
-##### Registering an Account with a Subscription Transaction <image>
+![Registering an Account with a Subscription Transaction](img/sub-tx/sub-tx-1.jpg  "Registering an Account with a Subscription Transaction")
+
+##### Registering an Account with a Subscription Transaction
 
 **Action**  : An integer representing the type of Subscription Transaction, enumerating to the types
 “Register”, “Topup”, “ChangePubKey” and “Deactivate”.
@@ -415,7 +417,9 @@ the registration transaction’s hash, and burning any additional amount of Dash
 to the subscriber’s account balance when tallying the current account subscription state. It does
 not need to be signed by the Account owner, i.e. anyone can topup an Account’s fee-balance
 
-##### Topping Up an Account’s Fee-Balance <image>
+![Topping Up an Account’s Fee-Balance](img/sub-tx/sub-tx-2.jpg  "Topping Up an Account’s Fee-Balance")
+
+##### Topping Up an Account’s Fee-Balance
 
 
 #### 3.1.6 Changing the public key
@@ -423,7 +427,7 @@ The public key for an Account registration can be changed by submitting an addit
 registration transaction with a “ResetKey” action, specifying the new public key and signing with
 the public key from the last registration transaction for that account.
 
-<image>
+![Changing an Account’s Public Key](img/sub-tx/sub-tx-3.jpg  "Changing an Account’s Public Key")
 
 This enables e.g. a user to change their password. The latest public key in the blockchain for
 this account is the proof of ownership, provided the registration transaction was valid and signed
@@ -435,7 +439,7 @@ public key, the subscriber can create a new subscription transaction using the �
 and signing for a previous public key, effectively deactivating the Account and preventing any
 updates to it’s data in future.
 
-<image>
+![Closing an Account](img/sub-tx/sub-tx-4.jpg  "Closing an Account")
 
 To validate the deactivation, nodes will check back for a set amount of time (e.g. 6 months) and
 allow deactivation on any public key within that period (and 3rd party apps could check further if
@@ -461,7 +465,9 @@ transaction set.
 Meta state is created by miners who set the status of the account and the fee-balance, based on
 the Account’s activity and the consensus rules, described later.
 
-##### Account State derived from Subscription Transactions <image>
+![Account State derived from Subscription Transactions](img/acc-state/acc-2-state.jpg  "Account State derived from Subscription Transactions")
+
+##### Account State derived from Subscription Transactions
 
 
 ### 3.3 Account Data
@@ -473,7 +479,9 @@ Header includes a Property containing the hash of the Data section Properties, s
 Data section can be matched to a header e.g. when stored in different locations, and the Header
 itself can be hashed to provide a single hash of all Properties in the Object.
 
-##### Object Authentication & Verification <image>
+![Object Authentication & Verification](img/objects/obj-1-struct.jpg  "Object Authentication & Verification")
+
+##### Object Authentication & Verification
 
 Account owners prove ownership of Objects by signing the header properties with their private
 key, which includes a hash of all property data, which nodes can independently verify using the
@@ -487,13 +495,15 @@ Because Account State Transitions are stored in blocks, clients can prove that a
 part of an Account State committed to a block by hashing the Object locally and checking a
 Merkle proof for the Object’s branch in the merkle tree.
 
-##### Account Data Objects hashed in Merkle Tree <image>
+![Object Tree](img/objects/obj-2-tree.jpg  "Object Tree")
+
+##### Account Data Objects hashed in Merkle Tree
 
 ### 3.4 State Transitions
 A State Transition, or Transition, is defined by the change in state of an Account’s owner data
 and metadata from an old state to a new state.   The full set of properties in a Transition are:
 
-<image>
+![State Transitions](img/state-trans/state-trans-1.jpg  "State Transitions")
 
 Each new transition references the last transition agreed by network consensus with the
 PrevSTHash property, and PrevDataHash references the last DataHash.
@@ -507,7 +517,7 @@ cryptographic proof of the sequence of transitions, the validity of each transit
 hash, and proof the data in each transition was created by the Account owner by verifying the
 signature using the public key for their subscription.
 
-<image>
+![Account State Transitions](img/acc-state/acc-2-state-trans.jpg  "Account State Transitions")
 
 ### 3.5 Data Transitions
 Each Account State Transition contains only a differential set of data Objects that were added or
@@ -516,7 +526,7 @@ changed in the transition, called a Data Transition.
 The root of the Merkle Tree of all Objects in the Account resulting from the transition is stored in
 the DataHash property in the Owner State.
 
-<image>
+![Data Transitions](img/state-trans/data-trans-1.jpg  "Data Transitions")
 
 ## 4 Schema
 The types of Objects that Accounts can store, rules as to how they should be validated and their
@@ -715,7 +725,7 @@ the existing Tier-1 (payments level) blockchain data structures derived from con
 transactions and made available as Evolution Objects, to enable applications to access these
 structures easily if required and for Objects to reference them internally:
 
-<image>
+![Payment Objects](img/objects/obj-3-pay.png  "Payment Objects")
 
  - Block, Tx and Address are the main object types used in the current payment level of
 the current Dash protocol
@@ -751,7 +761,7 @@ decentralized database with all data secured by blockchain consensus.
 In a centralized, trusted relational database with users connecting through a server, this would
 be very common requirements that are simple to implement in a database, for example:
 
-<image>
+![Centralized Solution](img/state-sequence/state-seq-0-centralized.png  "Centralized Solution")
 
 Users (e.g. Alice and Bob) can both signup with their UserKey via the server, which creates both
 rows in the User table. If user Alice wants to request a contact with Bob, she instructs the
@@ -821,7 +831,9 @@ UserContact: {
 Next, we can illustrate the static structure view of the JSON, showing the inheritance between
 the Object classes we have defined so far in the Schema Base & Model.
 
-##### Example Schema: Static Structure <image>
+![Example Schema: Static Structure](img/Schema/schema-1-oop.jpg  "Example Schema: Static Structure")
+
+##### Example Schema: Static Structure
 
 Note that nodes or clients are not required to implement inheritance to satisfy consensus rules,
 it is essentially an aspect to the Schema design that can be leveraged to reduce duplication and
@@ -841,8 +853,10 @@ data
 warehousing scenarios
  - Enables optimizations in retrieval through optimization of indexing strategies
  - Enables optimizations in storage footprint by indexing Object relations
+ 
+ ![Example Schema: Entity Relationships](img/Schema/schema-2-erd.jpg  "Example Schema: Entity Relationships")
 
-##### Example Schema: Entity Relationships <image>
+##### Example Schema: Entity Relationships
 
 In the diagram, the ContactKey must relate to a valid User Account, meaning the network will
 reject new Objects with the key of a User Account that doesn’t exist or exists and is closed (note
@@ -879,7 +893,9 @@ The first column, Named State, represents a predefined state (in the Schema) tha
 some meaningful state in real-world use cases, that can be determined by nodes and clients
 based on the state of an Account’s objects.
 
-##### State Sequence: Friending Process (Simple Example) <image>
+ ![State Sequence: Friending Process (Simple Example)](img/state-sequence/state-seq-1-friending.jpg  "State Sequence: Friending Process (Simple Example)")
+
+##### State Sequence: Friending Process (Simple Example)
 
 From the diagram:
 
@@ -955,7 +971,7 @@ transitions in new blocks, which we call the Drive, or ‘DashDrive’ for end-u
 Transitions represent the sequence in changes to an Account’s state and metadata are added
 to blocks by miners, and include a hash of the previous transition for the account.
 
-<image>
+ ![State Transitions](img/state-trans/state-trans-2.jpg  "State Transitions")
 
 The properties in the transition are grouped into 3 independent data items as follows:
 
@@ -1059,7 +1075,9 @@ The root hash of all Transitions in the block is hashed as part of the block hea
 Proof-of-Work to gain consensus on the new state of all accounts that have transitioned since
 the previous block.
 
-##### State Transitions in a Block <image>
+ ![Block Protocol](img/blocks/block-1.jpg  "Block Protocol")
+
+##### State Transitions in a Block
 
 The solution is scalable because each Account can have only one State Transition per block
 regardless of the amount of data that changed, and thus we minimize the impact on block
@@ -1104,7 +1122,7 @@ Transitions between account states stored in blocks.
 ### 6.1 Data Types
 For each State Transition added in a new block, Drive stores:
 
-<image>
+ ![Data Types](img/drive/dd-0.jpg  "Data Types")
 
 1. The merkle tree hashes for all Objects in the Transition
 2. The Object headers, containing properties for identity and relational validation
@@ -1117,7 +1135,9 @@ Transitions in each new block. By traversing all data transitions for an Account
 registered, an ‘Active’ state can be resolved to represent the full current set of an Account’s
 data, which is updated whenever a new block contains a transition for an Account.
 
-##### Resolving the Active State from differential data transitions <image>
+ ![Resolving the Active State from differential data transitions](img/state-trans/data-trans-2.jpg  "Resolving the Active State from differential data transitions")
+ 
+##### Resolving the Active State from differential data transitions
 
 ### 6.3 Scalability
 This provides a scalable solution because nodes only need to keep the current state of an
@@ -1174,7 +1194,9 @@ We can model this structure as a data cube, with the total set of registered Acc
 X-axis, and the Z-axis representing historical additions and updates of Objects leading up to the
 current, active state.
 
-##### <image> 2-dimensional storage of Account Data Transitions
+ ![2-dimensional storage of Account Data Transitions](img/drive/dd-1.jpg  "2-dimensional storage of Account Data Transitions")
+
+##### 2-dimensional storage of Account Data Transitions
 
 We can create a 3rd dimension in the data cube on the Y-axis by grouping Objects by Schema
 type, which enables optimizations to be made based on the different usage and verification
@@ -1182,7 +1204,9 @@ requirements of types, for example constructing and verifying meta state transit
 ratings requires fast searching of Rating trigger Objects by miners preparing a new block to
 minimize verification costs.
 
-##### <image> 3-dimensional storage of Account Data Transitions by Object Type
+ ![3-dimensional storage of Account Data Transitions by Object Type](img/drive/dd-2.jpg  "3-dimensional storage of Account Data Transitions by Object Type")
+ 
+##### 3-dimensional storage of Account Data Transitions by Object Type
 
 The diagram shows Objects within a data transition segregated by Schema type, with types
 separated along the Y-axis of the data cube.
@@ -1205,7 +1229,9 @@ relational integrity of the overall Object set in Drive.
 Below we illustrate (generically) depths at which Object transitions can be pruned based on the
 PruneDepth specified in the Object’s Schema definition, shown on the Z-axis of the data cube.
 
-##### <image> Pruning Transitions by Object Type
+ ![Pruning Transitions by Object Type](img/drive/dd-3.jpg  "Pruning Transitions by Object Type")
+ 
+##### Pruning Transitions by Object Type
 
 The main reason to use an informal, ad-hoc approach to partitioning instead of a formal
 sharding strategy is that formal sharding can weaken the durability of the data because
@@ -1217,7 +1243,9 @@ run low on disk space.
 The diagram below shows an ad-hoc Account pruning strategy, with 2 of the 6 accounts pruned
 along the X-axis of the data cube.
 
-##### <image> Account Pruning
+ ![Account Pruning](img/drive/dd-4.jpg  "Account Pruning")
+ 
+##### Account Pruning
 
 
 ## 7 Decentralized API
@@ -1355,7 +1383,7 @@ similar to an HMAC.
 Note: Typically Alice would be an Evolution client like a web browser and Bob would be a
 Masternode, but these roles are not hardcoded into the protocol.
 
-<image>
+![Quorum Sessions](img/dapi/dapi-quorums-0.png  "Quorum Sessions")
 
 This provides a high level of security in terms of message authenticity and integrity and is the
 basis of Client-node connections in DAPI.
@@ -1373,7 +1401,7 @@ containing only new/updated Objects, and their index in the derived merkle tree.
 tree hashes between the root and leaf nodes aren’t needed within the data as validating nodes
 can build these locally.
 
-<image>
+![Quorum State Transitions](img/dapi/dapi-1-ts.jpg  "Quorum State Transitions")
 
 If validated by a miner, the State Transition has its data included in a block by miners for a fee
 deducted from the Account’s tallied fee-balance, and its data (that was notarized by the
@@ -1414,7 +1442,9 @@ sequences within the rule-set defined in the Schema.
 We can represent the Objects in the Schema Model at a high level using a UML
 Composition-style diagram:
 
-##### <image> DashPay Schema Model Composition
+![DashPay Schema Model Composition](img/Schema/schema-1-model.jpg  "DashPay Schema Model Composition")
+
+##### DashPay Schema Model Composition
 
 Note: JSON and State Sequences for the Model are being prepared in a separate paper.
 
@@ -1446,7 +1476,9 @@ Note that having an Account closed can never result in the loss of funds by the 
 or preventing an Account from moving their funds, instead, the Account is banned from creating
 any State Transitions for the Account, meaning they cannot create or update new data Objects.
 
-##### <image> Absentee Account Rating via a Delegate State Transition
+![Absentee Account Rating via a Delegate State Transition](img/triggers/trig-1-rating.jpg  "Absentee Account Rating via a Delegate State Transition")
+
+##### Absentee Account Rating via a Delegate State Transition
 
 In the above example, the process is:
 
