@@ -209,7 +209,7 @@ with orders of magnitude more transactions per second and without a O(n) overhea
 at a much lower cost to the operators involved. Dash alleviates this problem by
 rewarding collateralized nodes to host higher capacity infrastructure as usage as the
 system scales from the block reward, but this is still subject to the problem that if
-provision costs overtake rewards, the network capacity and availability is dependant on
+provision costs overtake rewards, the network capacity and availability is dependent on
 altruism and capacity starts to decrease and infrastructure becomes more centralized to
 businesses that depend on capacity to operate.
 
@@ -259,7 +259,7 @@ protocols.
 One of the main problems with real-world usage of Cryptocurrencies is that the vast majority of
 users do not actually deal directly with the Cryptocurrencies p2p network, they rely on 3rd
 parties to provide intermediary services, to which the user is usually trusting for payment
-verification and always dependant on the permission and availability of those services as well as
+verification and always dependent on the permission and availability of those services as well as
 subject to censorship and monitoring, which undermines one of the main advantages to
 cryptocurrencies in terms of not relying on an intermediary to send or verify funds. This is
 because running your own fullnode is something most users choose not to do because most
@@ -284,7 +284,7 @@ with any contributing node in the network, in other words a Client protocol.
 Cataloguing the major problems:
 
  - The communication protocol used in the Dash P2P network is a bespoke messaging
-protocol on non-standard ports that isn’t understood or used by most developers, hard to
+protocol on non-standard ports that isn't understood or used by most developers, hard to
 implement, inaccessible to the clients with the largest end-user-payments market share
 (browsers) and even though it is available on mobile, as a non-standard protocol it is
 often blocked in firewall policies and easier to censor by authorities.
@@ -346,7 +346,7 @@ an Account’s state in blocks). However, rather than storing the metadata after
 opcode, we introduce the new opcode OP_SUBTX that mirrors OP_RETURN but is dedicated
 to Subscription Transactions. The reason is that OP_RETURN is already used generically by
 3rd parties in the Dash ecosystem with an 80 byte max length and may also be pruned (as there
-are no functions dependant on this data within the Dash protocol). Using a dedicated opcode
+are no functions dependent on this data within the Dash protocol). Using a dedicated opcode
 such as OP_SUBTX, the data is compartmentalized so that nodes can identify and validate
 Subscription Transactions with specific length and validation rules and without danger of pruning
 or invalid registration data being stored on the blockchain, making filtering and handling of the
@@ -564,14 +564,14 @@ class properties and constraints on derived classes
  - Enables programmatic code generation for e.g. Client SDK object sets
 
 The Schema has the properties of both an entity relationship (ER) model and a unified
-modelling language (UML) model used in Object Oriented Programming (OOP). This means
+modeling language (UML) model used in Object Oriented Programming (OOP). This means
 that Dash Evolution functions somewhat like an decentralized object-oriented relational
 database application for end-users and 3rd party applications, where the table rows are instead
 Objects defined by the Schema’s JSON definition at design-time.
 
 In this section we present the basic Schema elements, followed by walkthrough of an example
 implementation of a real-world use-case using the Schema to signup a user and friend another
-user and pay between themselves using automatically generated Dash addresses that aren’t
+user and pay between themselves using automatically generated Dash addresses that aren't
 linked to their Account data.
 
 ### 4.1 Interoperability
@@ -747,8 +747,8 @@ payments.
 As a simple test case, we want a user to be able to register an account, request to ‘add’ another
 user as a contact, at which point the other user is able to accept or decline that request. If
 accepted, both users will be able to see the other user in a list of their contacts. If the request is
-declined, the requesting user doesn’t have the option to request again, and the requested user
-doesn’t see the request anymore.
+declined, the requesting user doesn't have the option to request again, and the requested user
+doesn't see the request anymore.
 
 For our test case, we know we have to store the data using Account Objects, but we don’t care
 how or where the objects is stored, which is described in the next section. Instead we care
@@ -853,13 +853,13 @@ data
 warehousing scenarios
  - Enables optimizations in retrieval through optimization of indexing strategies
  - Enables optimizations in storage footprint by indexing Object relations
- 
+
  ![Example Schema: Entity Relationships](img/Schema/schema-2-erd.jpg  "Example Schema: Entity Relationships")
 
 ##### Example Schema: Entity Relationships
 
 In the diagram, the ContactKey must relate to a valid User Account, meaning the network will
-reject new Objects with the key of a User Account that doesn’t exist or exists and is closed (note
+reject new Objects with the key of a User Account that doesn't exist or exists and is closed (note
 that Accounts cannot update relations once created).
 
 The foreign key relation with BlockedUsers to a valid User Account is implied, meaning it cannot
@@ -937,7 +937,7 @@ with very different characteristics:
 data (~200 bytes) to be stored when account data or metadata is changed, regardless of
 the amount of data changed. Accounts may batch updates into a single State Transition
 and fullnodes must persist a full set of historical transitions across all Accounts to
-validate new states to satisy the consensus rules.
+validate new states to satisfy the consensus rules.
 2. **Data Transitions** which are the differential Object datasets introduced by each
 Account’s State Transition, consist of a hash of the data and the data itself. The Object
 hashes and data are not needed for historical validation using consensus rules and can
@@ -954,7 +954,7 @@ with 2 different types of persistence requirement; State Transitions must have f
 across all nodes and cannot be pruned (except for Closed Accounts), which scales linearly to
 the number of transactions (generally, and presuming transitions are being used as essentially
 metadata facilitating transactions and not wastage). The Active Dataset, however, represents
-just the upto-date state of user Account data, and therefore scales linearly to the number of
+just the up-to-date state of user Account data, and therefore scales linearly to the number of
 users (generally speaking).
 
 For these reasons, we store State Transitions directly in blocks in a process analogous to
@@ -1020,7 +1020,7 @@ the next MN reward cycle concludes (e.g. 2 weeks)
 
 #### 5.2.5 Incentives
 The incentive for Masternodes to form quorums to accept and propagate state transitions and
-store their data is because Masternode rewards are dependant on achieving a minimum quota
+store their data is because Masternode rewards are dependent on achieving a minimum quota
 of state transition in blocks based on the total Masternode activity within a fixed time.
 
 The incentive for Miners to add state transitions to blocks is because they earn fees on each
@@ -1136,7 +1136,7 @@ registered, an ‘Active’ state can be resolved to represent the full current 
 data, which is updated whenever a new block contains a transition for an Account.
 
  ![Resolving the Active State from differential data transitions](img/state-trans/data-trans-2.jpg  "Resolving the Active State from differential data transitions")
- 
+
 ##### Resolving the Active State from differential data transitions
 
 ### 6.3 Scalability
@@ -1205,7 +1205,7 @@ ratings requires fast searching of Rating trigger Objects by miners preparing a 
 minimize verification costs.
 
  ![3-dimensional storage of Account Data Transitions by Object Type](img/drive/dd-2.jpg  "3-dimensional storage of Account Data Transitions by Object Type")
- 
+
 ##### 3-dimensional storage of Account Data Transitions by Object Type
 
 The diagram shows Objects within a data transition segregated by Schema type, with types
@@ -1230,7 +1230,7 @@ Below we illustrate (generically) depths at which Object transitions can be prun
 PruneDepth specified in the Object’s Schema definition, shown on the Z-axis of the data cube.
 
  ![Pruning Transitions by Object Type](img/drive/dd-3.jpg  "Pruning Transitions by Object Type")
- 
+
 ##### Pruning Transitions by Object Type
 
 The main reason to use an informal, ad-hoc approach to partitioning instead of a formal
@@ -1244,7 +1244,7 @@ The diagram below shows an ad-hoc Account pruning strategy, with 2 of the 6 acco
 along the X-axis of the data cube.
 
  ![Account Pruning](img/drive/dd-4.jpg  "Account Pruning")
- 
+
 ##### Account Pruning
 
 
@@ -1263,7 +1263,7 @@ level definition of a Client as there is in most service models (such as Client-
 user is expected to access via a P2P node and interact as a peer directly, which is an
 understandable assumption in the early versions of Bitcoin, where every node was a miner,
 auditor, and maintained a full local copy of the blockchain, without foreknowledge of the
-segregation of roles introduced with developments such as pools, asics and non-mining
+segregation of roles introduced with developments such as pools, ASICs and non-mining
 (non-rewarded) fullnodes, and a mass exodus of desktop users to browser/mobile based
 applications since Bitcoin was launched.
 
@@ -1283,7 +1283,7 @@ Transitions) without needing to participate as peers and using the most commonly
 and censorship resistant protocol, HTTPS. Clients can also access any node in the network to
 validate Transaction and Transition data using SPV over HTTPS.
 
-Another aspect to mention regarding DAPI’s security model is that it is based on full ownership
+Another aspect to mention regarding DAPI's security model is that it is based on full ownership
 of private keys by client users, with private keys never entering DAPI, i.e. DAPI nodes cannot
 steal users funds. DAPI nodes also never serve code or content, e.g. JavaScript or HTML to a
 browser; DAPI is purely an XHR over HTTPS based API accessed by (ideally)
@@ -1381,7 +1381,7 @@ messages signed by and encrypted for the other party to prevent MITM and Spoofin
 similar to an HMAC.
 
 Note: Typically Alice would be an Evolution client like a web browser and Bob would be a
-Masternode, but these roles are not hardcoded into the protocol.
+Masternode, but these roles are not hard-coded into the protocol.
 
 ![Quorum Sessions](img/dapi/dapi-quorums-0.png  "Quorum Sessions")
 
@@ -1398,7 +1398,7 @@ representing a new Account State to nodes in a State Transition data structure.
 
 The State Transition must contain a complete updated Owner State, and a partial data section,
 containing only new/updated Objects, and their index in the derived merkle tree. The merkle
-tree hashes between the root and leaf nodes aren’t needed within the data as validating nodes
+tree hashes between the root and leaf nodes aren't needed within the data as validating nodes
 can build these locally.
 
 ![Quorum State Transitions](img/dapi/dapi-1-ts.jpg  "Quorum State Transitions")
